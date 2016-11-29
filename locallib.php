@@ -23,7 +23,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die;
-define('MAX_ID_NUMBER', 9999999);
 define('BLOCK_CHAR', '&#9608;');
 
 require_once($CFG->libdir . '/formslib.php');
@@ -54,6 +53,9 @@ class local_anonymise_form extends moodleform {
         $mform->addElement('checkbox', 'site', get_string('includesite', 'local_anonymise'));
         $mform->setType('site', PARAM_BOOL);
         $mform->disabledIf('site', 'courses', 'notchecked');
+
+        $mform->addElement('checkbox', 'files', get_string('files', 'local_anonymise'));
+        $mform->setType('files', PARAM_BOOL);
 
         $mform->addElement('checkbox', 'users', get_string('users', 'local_anonymise'));
         $mform->setType('users', PARAM_BOOL);
@@ -110,6 +112,26 @@ function anonymise_categories() {
         assign_if_not_null($category, 'description', $descriptionprefix . $randomid);
         assign_if_not_null($category, 'idnumber', $randomid);
         $DB->update_record('course_categories', $category, true);
+    }
+}
+
+function anonymise_files() {
+    global $DB;
+
+    $files = $DB->get_recordset('files');
+    foreach ($files as $file) {
+
+        echo BLOCK_CHAR . ' ';
+
+        assign_if_not_null($file, 'author', 'user ' . $file->userid);
+        assign_if_not_null($file, 'source', '');
+        if ($file->filename !== '.') {
+            assign_if_not_null($file, 'filename', random_id());
+        }
+        if ($file->filepath !== '/') {
+            assign_if_not_null($file, 'filepath', '/' . random_id() . '/');
+        }
+        $DB->update_record('files', $file);
     }
 }
 
@@ -181,6 +203,7 @@ function anonymise_users($password = false, $admin = false) {
         'department' => get_string('department'),
         'address' => get_string('address'),
         'description' => get_string('description'),
+        'firstnamephonetic' => get_string('firstnamephonetic'),
         'lastnamephonetic' => get_string('lastnamephonetic'),
         'middlename' => get_string('middlename'),
         'alternatename' => get_string('alternatename'),
@@ -216,7 +239,7 @@ function anonymise_users($password = false, $admin = false) {
     // Clear custom profile fields.
     $customfields = $DB->get_recordset('user_info_data');
     foreach ($customfields as $field) {
-        $field->data = null;
+        $field->data = '';
         $DB->update_record('user_info_data', $field, true);
     }
 }
@@ -234,13 +257,13 @@ function assign_if_not_null(&$object, $field, $newvalue) {
 function random_id() {
 
     // Keep track of used IDs during the running of the script.
-    static $userids = array();
+    static $usedids = array();
 
     do {
-        $id = rand(1, MAX_ID_NUMBER);
-    } while (array_search($id, $userids) !== false);
+        $id = rand(1, PHP_INT_MAX);
+    } while (array_search($id, $usedids) !== false);
 
-    $userids[] = $id;
+    $usedids[] = $id;
 
     return $id;
 }
