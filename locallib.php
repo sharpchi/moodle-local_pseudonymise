@@ -69,6 +69,9 @@ class local_anonymise_form extends moodleform {
         $mform->setType('users', PARAM_BOOL);
         $mform->disabledIf('admin', 'users', 'notchecked');
 
+        $mform->addElement('checkbox', 'texts', get_string('texts', 'local_anonymise'));
+        $mform->setType('texts', PARAM_BOOL);
+
         $mform->addElement('submit', 'submitbutton', get_string('anonymise', 'local_anonymise'));
     }
 }
@@ -244,6 +247,53 @@ function anonymise_users($password = false, $admin = false) {
     }
 }
 
+function anonymise_texts() {
+    global $DB, $XMLDB;
+
+    $excludedcolumns = get_excluded_columns();
+
+    $tables = $DB->get_tables(false);
+    foreach ($tables as $tablename) {
+
+        echo BLOCK_CHAR . ' ';
+
+        $toupdate = array();
+        $columns = $DB->get_columns($tablename, false);
+        foreach ($columns as $columnname => $column) {
+
+            // Some text fields can not be cleared or the site would not make sense.
+            // TODO Missing mysql!
+            if (!empty($excludedcolumns[$tablename]) && in_array($columnname, $excludedcolumns[$tablename])) {
+                continue;
+            }
+
+            if ($DB->get_dbfamily() === 'postgres' && $column->type === 'text') {
+                $toupdate[$columnname] = $columnname;
+            }
+        }
+
+        // Update all table records if there is any text column that should be cleaned.
+        if (!empty($toupdate)) {
+            $records = $DB->get_recordset($tablename);
+            foreach ($records as $record) {
+                $updaterecord = false;
+
+                // Set each of the text columns value to a random string with the same length.
+                foreach ($toupdate as $columnname) {
+                    $len = \core_text::strlen($record->{$columnname});
+                    if ($len) {
+                        $updaterecord = true;
+                        $record->{$columnname} = random_string($len);
+                    }
+                }
+                if ($updaterecord) {
+                    $DB->update_record($tablename, $record);
+                }
+            }
+        }
+    }
+}
+
 function assign_if_not_null(&$object, $field, $newvalue) {
     if (
         property_exists($object, $field) &&
@@ -266,4 +316,50 @@ function random_id() {
     $usedids[] = $id;
 
     return $id;
+}
+
+function get_excluded_columns() {
+    return array(
+        'config' => array('value'),
+        'config_plugins' => array('value'),
+        'course_modules' => array('availability'),
+        'course_sections' => array('sequence', 'availability'),
+        'course_format_options' => array('value'),
+        'filter_config' => array('value'),
+        'message' => array('contexturl', 'contexturlname'),
+        'message_read' => array('contexturl', 'contexturlname'),
+        'scale' => array('scale'),
+        'question_statistics' => array('subquestions', 'positions'),
+        'events_handlers' => array('handlerfunction'),
+        'grade_items' => array('calculation'),
+        'grade_items_history' => array('calculation'),
+        'tag_correlation' => array('correlatedtags'),
+        'groupings' => array('configdata'),
+        'files_reference' => array('reference'),
+        'block_instances' => array('configdata'),
+        'grading_definitions' => array('options'),
+        'badge_issued' => array('uniquehash'),
+        'competency' => array('ruleconfig', 'scaleconfiguration'),
+        'competency_framework' => array('scaleconfiguration'),
+        'logstore_standard_log' => array('other'),
+        'question_multianswer' => array('sequence'),
+        'qtype_ddmarker_drops' => array('coords'),
+        'data' => array('singletemplate', 'listtemplate', 'listtemplateheader', 'listtemplatefooter', 'addtemplate', 'rsstemplate', 'csstemplate', 'jstemplate', 'asearchtemplate', 'config'),
+        'lesson' => array('conditions'),
+        'page' => array('displayoptions'),
+        'feedback' => array('page_after_submit'),
+        'resource' => array('displayoptions'),
+        'quiz_attempts' => array('layout'),
+        'workshopallocation_scheduled' => array('settings'),
+        'lti_types' => array('enabledcapability', 'parameter'),
+        'lti_tool_settings' => array('settings'),
+        'scorm_scoes' => array('launch'),
+        'scorm_scoes_data' => array('value'),
+        'scorm_scoes_track' => array('value'),
+        'assignfeedback_editpdf_annot' => array('path'),
+        'assign_plugin_config' => array('value'),
+        'survey_questions' => array('options'),
+        'url' => array('displayoptions', 'parameters'),
+        'imscp' => array('structure')
+    );
 }
