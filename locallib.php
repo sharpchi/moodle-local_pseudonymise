@@ -85,8 +85,11 @@ function anonymise_activities() {
     foreach ($modules as $module) {
 
         echo BLOCK_CHAR . ' ';
-
-        $modulename = get_string('pluginname', 'mod_' . $module->name);
+        if (get_string_manager()->string_exists('pluginname', 'mod_' . $module->name)) {
+            $modulename = get_string('pluginname', 'mod_' . $module->name);
+        } else {
+            $modulename = $module->name;
+        }
         $moduleinstances = $DB->get_recordset($module->name);
 
         foreach ($moduleinstances as $moduleinstance) {
@@ -196,12 +199,11 @@ function anonymise_users($password = false, $admin = false) {
     $fields = array(
         'firstname' => get_string('firstname'),
         'lastname' => get_string('lastname'),
+        'password' => get_string('password'),
         'skype' => get_string('skypeid'),
         'yahoo' => get_string('yahooid'),
         'aim' => get_string('aimid'),
         'msn' => get_string('msnid'),
-        'phone1' => get_string('phone1'),
-        'phone2' => get_string('phone2'),
         'institution' => get_string('institution'),
         'department' => get_string('department'),
         'address' => get_string('address'),
@@ -230,13 +232,21 @@ function anonymise_users($password = false, $admin = false) {
         foreach ($fields as $field => $translation) {
             assign_if_not_null($user, $field, $translation . ' ' . $randomid);
         }
+
+        // Moving here fields specially small, we need to limit their size.
         assign_if_not_null($user, 'email', $randomid . '@'. $domain);
-        assign_if_not_null($user, 'icq', $randomid);
+        assign_if_not_null($user, 'icq', 'icq ' . substr($randomid, 0, 10));
+        assign_if_not_null($user, 'phone1', 'phone1 ' . substr($randomid, 0, 12));
+        assign_if_not_null($user, 'phone2', 'phone2 ' . substr($randomid, 0, 12));
         assign_if_not_null($user, 'url', 'http://' . $randomid . '.com');
+        assign_if_not_null($user, 'lastip', 'lastip ' . substr($randomid, 0, 37));
+        assign_if_not_null($user, 'secret', 'secret ' . substr($randomid, 0, 7));
+
+        // Defaults.
         assign_if_not_null($user, 'city', $defaultcity);
         assign_if_not_null($user, 'country', $defaultcountry);
         $user->picture = 0;
-        user_update_user($user, $user->username == 'admin' ? false : $password);
+        user_update_user($user, $user->username == 'admin' ? false : $password, false);
     }
 
     // Clear custom profile fields.

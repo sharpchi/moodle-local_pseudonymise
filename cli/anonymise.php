@@ -52,8 +52,7 @@ if ($unrecognized) {
     cli_error(get_string('cliunknowoption', 'admin', $unrecognized), 2);
 }
 
-if ($options['help']) {
-    $help =
+$help =
 "Anonymises your site
 
 Options:
@@ -73,6 +72,14 @@ Example:
 \$sudo -u www-data /usr/bin/php local/anonymise/cli/anonymise.php --all
 ";
 
+
+if ($options['help']) {
+    echo $help;
+    exit(0);
+}
+
+$unique = array_unique($options);
+if (count($unique) === 1 && reset($unique) === false) {
     echo $help;
     exit(0);
 }

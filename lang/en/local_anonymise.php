@@ -30,6 +30,7 @@ $string['done'] = 'Done';
 $string['files'] = 'Anonymise files';
 $string['includeadmin'] = 'Anonymise default administrator (except username and password)';
 $string['includesite'] = 'Anonymise site home course';
+$string['password'] = 'plain password';
 $string['pluginname'] = 'Anonymise';
 $string['purgelink'] = 'purge caches';
 $string['purgeprompt'] = 'In order to finalise the anonymisation, you should';
