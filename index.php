@@ -53,7 +53,7 @@ if ($anonymise) {
     $password = optional_param('password',  false,  PARAM_BOOL);
     $admin = optional_param('admin',  false,  PARAM_BOOL);
     $site = optional_param('site',  false,  PARAM_BOOL);
-    $texts = optional_param('texts', false, PARAM_BOOL);
+    $others = optional_param('others', false, PARAM_BOOL);
 
     if ($activities) {
         echo $OUTPUT->heading(get_string('activities', 'local_anonymise'), 3);
@@ -80,9 +80,9 @@ if ($anonymise) {
         anonymise_users($password, $admin);
     }
 
-    if ($texts) {
-        echo $OUTPUT->heading(get_string('texts', 'local_anonymise'), 3);
-        anonymise_texts();
+    if ($others) {
+        echo $OUTPUT->heading(get_string('others', 'local_anonymise'), 3);
+        anonymise_others();
     }
 
     echo html_writer::tag('p', get_string('done', 'local_anonymise'), array('style' => 'margin-top: 20px;'));

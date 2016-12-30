@@ -40,7 +40,7 @@ list($options, $unrecognized) = cli_get_params(
         'users' => false,
         'password' => false,
         'admin' => false,
-        'texts' => false,
+        'others' => false,
         'help' => false
     ), array(
         'h' => 'help'
@@ -65,7 +65,7 @@ Options:
 --users             Anonymise users
 --password          Reset user passwords
 --admin             Anonymise default administrator (except username and password)
---texts             Anonymise all database text fields
+--others            Anonymise all other potentially sensitive contents
 -h, --help          Print out this help
 
 Example:
@@ -121,9 +121,9 @@ if ($options['users']) {
     anonymise_users($options['password'], $options['admin']);
 }
 
-if ($options['texts']) {
-    echo $OUTPUT->heading(get_string('texts', 'local_anonymise'), 3);
-    anonymise_texts();
+if ($options['others']) {
+    echo $OUTPUT->heading(get_string('others', 'local_anonymise'), 3);
+    anonymise_others();
 }
 
 exit(0);

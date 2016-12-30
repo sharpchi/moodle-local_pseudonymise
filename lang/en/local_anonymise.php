@@ -35,6 +35,6 @@ $string['pluginname'] = 'Anonymise';
 $string['purgelink'] = 'purge caches';
 $string['purgeprompt'] = 'In order to finalise the anonymisation, you should';
 $string['resetpasswords'] = 'Reset passwords';
-$string['texts'] = 'Anonymise all database text fields';
+$string['others'] = 'Anonymise all other potentially sensitive contents';
 $string['users'] = 'Anonymise users';
 $string['warning'] = '<strong>WARNING:</strong> This will alter data across your whole site.';

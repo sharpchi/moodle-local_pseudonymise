@@ -69,8 +69,8 @@ class local_anonymise_form extends moodleform {
         $mform->setType('users', PARAM_BOOL);
         $mform->disabledIf('admin', 'users', 'notchecked');
 
-        $mform->addElement('checkbox', 'texts', get_string('texts', 'local_anonymise'));
-        $mform->setType('texts', PARAM_BOOL);
+        $mform->addElement('checkbox', 'others', get_string('others', 'local_anonymise'));
+        $mform->setType('others', PARAM_BOOL);
 
         $mform->addElement('submit', 'submitbutton', get_string('anonymise', 'local_anonymise'));
     }
@@ -213,7 +213,7 @@ function anonymise_users($password = false, $admin = false) {
         'middlename' => get_string('middlename'),
         'alternatename' => get_string('alternatename'),
     );
-    $allusers = $DB->get_recordset('user');
+    $allusers = $DB->get_recordset('user', array('deleted' => 0));
 
     // Clear fields in the user table.
     foreach ($allusers as $user) {
@@ -257,11 +257,28 @@ function anonymise_users($password = false, $admin = false) {
     }
 }
 
-function anonymise_texts() {
-    global $DB, $XMLDB;
+/**
+ * Here we:
+ *
+ * - Anonymise all database text fields (there is a list of excluded fields)
+ * - Delete all non-core database tables
+ * - Delete all non-core mdl_config_plugins entries
+ * - Delete all core sensitive records from mdl_config_plugins and mdl_config
+ * - Delete all user sessions stored data
+ * - Update all ips to 1.1.1.1
+ * - Delete core sensitive records that don't fall in any of the points above
+ *
+ * @access public
+ * @return void
+ */
+function anonymise_others() {
+    global $DB;
 
+    // We don't want to anonymise these database table columns because the system would not work as expected
+    // without them or they contain numeric or they contain data that do not need to be anonymised.
     $excludedcolumns = get_excluded_columns();
 
+    // Iterate through all system tables and set random values to all non-excluded text fields.
     $tables = $DB->get_tables(false);
     foreach ($tables as $tablename) {
 
@@ -272,34 +289,157 @@ function anonymise_texts() {
         foreach ($columns as $columnname => $column) {
 
             // Some text fields can not be cleared or the site would not make sense.
-            // TODO Missing mysql!
             if (!empty($excludedcolumns[$tablename]) && in_array($columnname, $excludedcolumns[$tablename])) {
                 continue;
             }
 
-            if ($DB->get_dbfamily() === 'postgres' && $column->type === 'text') {
-                $toupdate[$columnname] = $columnname;
+            // TODO Missing mysql!
+            if ($DB->get_dbfamily() === 'postgres') {
+                if ($column->type === 'text') {
+                    $toupdate[$columnname] = $columnname;
+                }
             }
         }
 
         // Update all table records if there is any text column that should be cleaned.
         if (!empty($toupdate)) {
-            $records = $DB->get_recordset($tablename);
-            foreach ($records as $record) {
-                $updaterecord = false;
+            anonymise_table_records($tablename, $toupdate);
+        }
+    }
 
-                // Set each of the text columns value to a random string with the same length.
-                foreach ($toupdate as $columnname) {
-                    $len = \core_text::strlen($record->{$columnname});
-                    if ($len) {
-                        $updaterecord = true;
-                        $record->{$columnname} = random_string($len);
-                    }
-                }
-                if ($updaterecord) {
-                    $DB->update_record($tablename, $record);
-                }
+    // List all non-standard plugins in the system.
+    $noncoreplugins = array();
+    foreach (\core_component::get_plugin_types() as $plugintype => $plugintypedir) {
+
+        $allplugins = \core_component::get_plugin_list($plugintype);
+        $standardplugins = core_plugin_manager::standard_plugins_list($plugintype);
+        if (!is_array($standardplugins)) {
+            $standardplugins = array();
+        }
+        $plugintypenoncore = array_diff(array_keys($allplugins), $standardplugins);
+
+        foreach ($plugintypenoncore as $pluginname) {
+            $name = $plugintype . '_' . $pluginname;
+            $noncoreplugins[$name] = $allplugins[$pluginname];
+        }
+    }
+
+    // Delete all non-core mdl_config_plugins records and tables.
+    if ($noncoreplugins) {
+
+        $dbman = $DB->get_manager();
+
+        foreach ($noncoreplugins as $pluginname => $path) {
+
+            $DB->delete_records('config_plugins', array('plugin' => $pluginname));
+
+            // Also delete records stored without the plugintype part of the plugin name.
+            $name = substr($pluginname, strpos($name, '_') + 1);
+            $DB->delete_records('config_plugins', array('plugin' => $name));
+
+            // All plugin tables.
+            $dbfile = $path . '/db/install.xml';
+            if (file_exists($dbfile)) {
+                $dbman->delete_tables_from_xmldb_file($dbfile);
             }
+        }
+    }
+
+    // Delete core plugins sensitive mdl_config_plugins records.
+    $sensitiveplugins = array('auth_cas', 'auth_db', 'auth_fc', 'auth_imap', 'auth_ldap', 'auth_nntp', 'auth_pam', 'auth_pop3',
+        'auth_shibboleth',
+        'enrol_database', 'enrol_ldap', 'enrol_paypal',
+        'logstore_database',
+        'repository_youtube', 'repository_dropbox', 'repository_flickr_public', 'repository_boxnet', 'repository_flickr',
+        'repository_googledocs', 'repository_merlot', 'repository_picasa', 'repository_s3', 'repository_skydrive',
+        'search_solr'
+    );
+    foreach ($sensitiveplugins as $pluginname) {
+        $DB->delete_records('config_plugins', array('plugin' => $pluginname));
+
+        // Also delete records stored without the plugintype part of the plugin name.
+        $name = substr($pluginname, strpos($name, '_') + 1);
+        $DB->delete_records('config_plugins', array('plugin' => $name));
+    }
+
+    // Also hub, which is not a plugin but its data is stored in config_plugins.
+    $DB->delete_records('config_plugins', array('plugin' => 'hub'));
+
+    // Also delete core sensitive records in mdl_config.
+    $sensitiveconfigvalues = array(
+        'jabberhost', 'jabberserver', 'jabberusername', 'jabberpassword', 'jabberport',
+        'airnotifierurl', 'airnotifierport', 'airnotifiermobileappname', 'airnotifierappname', 'airnotifieraccesskey',
+        'BigBlueButtonBNSecuritySalt', 'bigbluebuttonbn_server_url', 'BigBlueButtonBNServerURL', 'bigbluebuttonbn_shared_secret',
+        'chat_serverhost', 'chat_serverip', 'chat_serverport', 'curlsecurityallowedport', 'curlsecurityblockedhosts', 'geoip2file',
+        'geoipfile', 'googlemapkey3', 'maintenance_message', 'messageinbound_domain', 'messageinbound_host',
+        'messageinbound_hostpass', 'messageinbound_hostssl', 'messageinbound_hostuser', 'messageinbound_mailbox', 'noreplyaddress',
+        'proxybypass', 'proxyhost', 'proxypassword', 'proxyport', 'proxytype', 'proxyuser', 'recaptchaprivatekey',
+        'recaptchapublickey', 'smtphosts', 'smtppass', 'smtpsecure', 'smtpuser', 'supportemail', 'supportname', 'badges_badgesalt',
+        'cronremotepassword'
+    );
+    foreach ($sensitiveconfigvalues as $name) {
+        // We update rather than delete because there is code that relies incorrectly on CFG vars being set.
+        if ($record = $DB->get_record('config', array('name' => $name))) {
+            $record->value = '';
+            $DB->update_record('config', $record);
+        }
+    }
+
+    // Other records.
+    $DB->delete_records('user_preferences', array('name' => 'login_lockout_secret'));
+    $DB->delete_records('user_preferences', array('name' => 'flickr_'));
+    $DB->delete_records('user_preferences', array('name' => 'flickr__nsid'));
+    $DB->delete_records('user_preferences', array('name' => 'dropbox__request_secret'));
+
+    $DB->delete_records('sessions');
+
+    // Get rid of all ips.
+    $params = array('ip' => '1.1.1.1');
+    $updateips = "UPDATE {user_private_key} SET iprestriction = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {user} SET lastip = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {registry} SET ipaddress = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {register_downloads} SET ip = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {mnet_log} SET ip = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {logstore_standard_log} SET ip = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {log} SET ip = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {chat_users} SET ip = :ip";
+    $DB->execute($updateips, $params);
+    $updateips = "UPDATE {block_spam_deletion_akismet} SET user_ip = :ip";
+    $DB->execute($updateips, $params);
+
+    purge_all_caches();
+}
+
+function anonymise_table_records($tablename, $columns) {
+    global $DB;
+
+    $records = $DB->get_recordset($tablename);
+    foreach ($records as $record) {
+        $updaterecord = false;
+
+        // Set each of the text columns value to a random string with the same length.
+        foreach ($columns as $columnname) {
+            $len = \core_text::strlen($record->{$columnname});
+            if ($len) {
+                $updaterecord = true;
+                $record->{$columnname} = random_string($len);
+            }
+        }
+        if ($updaterecord) {
+            $DB->update_record($tablename, $record);
         }
     }
 }
