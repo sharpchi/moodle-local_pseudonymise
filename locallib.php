@@ -424,16 +424,22 @@ function anonymise_others() {
     $DB->execute($updateips, $params);
     $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
     $DB->execute($updateips, $params);
-    $updateips = "UPDATE {logstore_standard_log} SET ip = :ip";
-    $DB->execute($updateips, $params);
     $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
     $DB->execute($updateips, $params);
     $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
     $DB->execute($updateips, $params);
-    $updateips = "UPDATE {chat_users} SET ip = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {block_spam_deletion_akismet} SET user_ip = :ip";
-    $DB->execute($updateips, $params);
+    try {
+        $updateips = "UPDATE {chat_users} SET ip = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // np, ignoring chat if not installed.
+    }
+    try {
+        $updateips = "UPDATE {logstore_standard_log} SET ip = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // np, ignoring logstore_standard if not installed (although not worth the dataset if uninstalled....).
+    }
 
     // We don't want to anonymise these database table columns because the system would not work as expected
     // without them or they contain numeric or they contain data that do not need to be anonymised.
