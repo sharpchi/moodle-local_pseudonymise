@@ -597,7 +597,7 @@ function get_varchar_fields_to_update() {
 
     // I've left role names in db as they are although not 100% sure.
     // I've left tag as they are.
-    return array(
+    $varchars = array(
         'assign' => array('name'),
         'assignment' => array('name'),
         'badge' => array('name', 'issuername', 'issuerurl', 'issuercontact'),
@@ -696,4 +696,10 @@ function get_varchar_fields_to_update() {
         'workshop_submissions' => array('title'),
         'workshopallocation_scheduled' => array('resultmessage')
     );
+
+    foreach ($varchars as $tablename => $columns) {
+        $varchars[$tablename] = array_combine($columns, $columns);
+    }
+
+    return $varchars;
 }
