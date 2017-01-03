@@ -498,7 +498,6 @@ function anonymise_table_records($tablename, $columns) {
 
             // Skip unexisting columns.
             if (!isset($record->{$columnname})) {
-                mtrace('Skipping ' . $columnname . ' column in ' . $tablename . ' table as it does not exist in this Moodle site');
                 continue;
             }
 
