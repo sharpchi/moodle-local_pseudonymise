@@ -424,6 +424,8 @@ function anonymise_others() {
     $DB->execute($updateips, $params);
     $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
     $DB->execute($updateips, $params);
+    $updateips = "UPDATE {logstore_standard_log} SET ip = :ip";
+    $DB->execute($updateips, $params);
     $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
     $DB->execute($updateips, $params);
     $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
@@ -644,7 +646,6 @@ function get_varchar_fields_to_update() {
         'lesson' => array('name', 'password'),
         'lesson_overrides' => array('password'),
         'lesson_pages' => array('title'),
-        'logstore_standard_log' => array('ip'),
         'lti' => array('name', 'instructorcustomparameters', 'resourcekey', 'password', 'servicesalt'),
         'lti_tool_proxies' => array('name', 'secret', 'vendorcode', 'name'),
         'lti_types' => array('name', 'tooldomain'),
