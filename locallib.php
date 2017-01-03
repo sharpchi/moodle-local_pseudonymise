@@ -82,9 +82,14 @@ function anonymise_activities() {
 
     $modules = $DB->get_records('modules');
 
+    debugging('Anonymising activities', DEBUG_DEVELOPER);
+
     foreach ($modules as $module) {
 
-        echo BLOCK_CHAR . ' ';
+        if (!debugging('', DEBUG_DEVELOPER)) {
+            echo BLOCK_CHAR . ' ';
+        }
+
         if (get_string_manager()->string_exists('pluginname', 'mod_' . $module->name)) {
             $modulename = get_string('pluginname', 'mod_' . $module->name);
         } else {
@@ -94,7 +99,7 @@ function anonymise_activities() {
 
         foreach ($moduleinstances as $moduleinstance) {
 
-            $randomid = random_id();
+            $randomid = assign_random_id();
             $moduleinstance->name = $modulename . ' ' . $randomid;
             $DB->update_record($module->name, $moduleinstance, true);
         }
@@ -109,35 +114,19 @@ function anonymise_categories() {
     $categoyprefix = get_string('category');
     $descriptionprefix = get_string('description');
 
+    debugging('Anonymising categories', DEBUG_DEVELOPER);
+
     foreach ($allcategories as $category) {
 
-        echo BLOCK_CHAR . ' ';
+        if (!debugging('', DEBUG_DEVELOPER)) {
+            echo BLOCK_CHAR . ' ';
+        }
 
-        $randomid = random_id();
+        $randomid = assign_random_id();
         $category->name = $categoyprefix . ' ' . $randomid;
         assign_if_not_null($category, 'description', $descriptionprefix . $randomid);
         assign_if_not_null($category, 'idnumber', $randomid);
         $DB->update_record('course_categories', $category, true);
-    }
-}
-
-function anonymise_files() {
-    global $DB;
-
-    $files = $DB->get_recordset('files');
-    foreach ($files as $file) {
-
-        echo BLOCK_CHAR . ' ';
-
-        assign_if_not_null($file, 'author', 'user ' . $file->userid);
-        assign_if_not_null($file, 'source', '');
-        if ($file->filename !== '.') {
-            assign_if_not_null($file, 'filename', random_id());
-        }
-        if ($file->filepath !== '/') {
-            assign_if_not_null($file, 'filepath', '/' . random_id() . '/');
-        }
-        $DB->update_record('files', $file);
     }
 }
 
@@ -150,18 +139,22 @@ function anonymise_courses($site = false) {
     $sectionprefix = get_string('section');
     $sitecourse = 1;
 
+    debugging('Anonymising courses');
+
     // Anonymise course data.
     $courses = $DB->get_recordset('course');
     foreach ($courses as $course) {
 
-        echo BLOCK_CHAR . ' ';
+        if (!debugging('', DEBUG_DEVELOPER)) {
+            echo BLOCK_CHAR . ' ';
+        }
 
         if (!$site && $course->format == 'site') {
             $sitecourse = $course->id;
             continue;
         }
 
-        $randomid = random_id();
+        $randomid = assign_random_id();
         $course->fullname = $courseprefix . ' ' . $randomid;
         $course->shortname = $courseprefix . ' ' . $randomid;
         assign_if_not_null($course, 'idnumber', $randomid);
@@ -169,11 +162,15 @@ function anonymise_courses($site = false) {
         $DB->update_record('course', $course, true);
     }
 
+    debugging('Anonymising sections');
+
     // Anonymise sections.
     $sections = $DB->get_recordset('course_sections');
     foreach ($sections as $section) {
 
-        echo BLOCK_CHAR . ' ';
+        if (!debugging('', DEBUG_DEVELOPER)) {
+            echo BLOCK_CHAR . ' ';
+        }
 
         if (!$site && $section->course == $sitecourse) {
             continue;
@@ -183,6 +180,30 @@ function anonymise_courses($site = false) {
         assign_if_not_null($section, 'summary', $descriptionprefix . ' ' . $section->section);
 
         $DB->update_record('course_sections', $section, true);
+    }
+}
+
+function anonymise_files() {
+    global $DB;
+
+    debugging('Anonymising files');
+
+    $files = $DB->get_recordset('files');
+    foreach ($files as $file) {
+
+        if (!debugging('', DEBUG_DEVELOPER)) {
+            echo BLOCK_CHAR . ' ';
+        }
+
+        assign_if_not_null($file, 'author', 'user ' . $file->userid);
+        assign_if_not_null($file, 'source', '');
+        if ($file->filename !== '.') {
+            assign_if_not_null($file, 'filename', assign_random_id());
+        }
+        if ($file->filepath !== '/') {
+            assign_if_not_null($file, 'filepath', '/' . assign_random_id() . '/');
+        }
+        $DB->update_record('files', $file);
     }
 }
 
@@ -215,16 +236,20 @@ function anonymise_users($password = false, $admin = false) {
     );
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
 
+    debugging('Anonymising users');
+
     // Clear fields in the user table.
     foreach ($allusers as $user) {
 
-        echo BLOCK_CHAR . ' ';
+        if (!debugging('', DEBUG_DEVELOPER)) {
+            echo BLOCK_CHAR . ' ';
+        }
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
             continue;
         }
 
-        $randomid = random_id();
+        $randomid = assign_random_id();
         if ($user->username != 'admin') {
             $user->username = $userstring . $randomid;
         }
@@ -246,7 +271,12 @@ function anonymise_users($password = false, $admin = false) {
         assign_if_not_null($user, 'city', $defaultcity);
         assign_if_not_null($user, 'country', $defaultcountry);
         $user->picture = 0;
-        user_update_user($user, $user->username == 'admin' ? false : $password, false);
+        try {
+            user_update_user($user, $user->username == 'admin' ? false : $password, false);
+        } catch (moodle_exception $ex) {
+            // No problem if there is any inconsistency just skip it.
+            debugging('Skipped user ' . $user->id . ' update', DEBUG_DEVELOPER);
+        }
     }
 
     // Clear custom profile fields.
@@ -260,52 +290,19 @@ function anonymise_users($password = false, $admin = false) {
 /**
  * Here we:
  *
- * - Anonymise all database text fields (there is a list of excluded fields)
  * - Delete all non-core database tables
  * - Delete all non-core mdl_config_plugins entries
  * - Delete all core sensitive records from mdl_config_plugins and mdl_config
  * - Delete all user sessions stored data
  * - Update all ips to 1.1.1.1
  * - Delete core sensitive records that don't fall in any of the points above
+ * - Anonymise database text and varchar fields (there is a list of excluded fields)
  *
  * @access public
  * @return void
  */
 function anonymise_others() {
     global $DB;
-
-    // We don't want to anonymise these database table columns because the system would not work as expected
-    // without them or they contain numeric or they contain data that do not need to be anonymised.
-    $excludedcolumns = get_excluded_columns();
-
-    // Iterate through all system tables and set random values to all non-excluded text fields.
-    $tables = $DB->get_tables(false);
-    foreach ($tables as $tablename) {
-
-        echo BLOCK_CHAR . ' ';
-
-        $toupdate = array();
-        $columns = $DB->get_columns($tablename, false);
-        foreach ($columns as $columnname => $column) {
-
-            // Some text fields can not be cleared or the site would not make sense.
-            if (!empty($excludedcolumns[$tablename]) && in_array($columnname, $excludedcolumns[$tablename])) {
-                continue;
-            }
-
-            // TODO Missing mysql!
-            if ($DB->get_dbfamily() === 'postgres') {
-                if ($column->type === 'text') {
-                    $toupdate[$columnname] = $columnname;
-                }
-            }
-        }
-
-        // Update all table records if there is any text column that should be cleaned.
-        if (!empty($toupdate)) {
-            anonymise_table_records($tablename, $toupdate);
-        }
-    }
 
     // List all non-standard plugins in the system.
     $noncoreplugins = array();
@@ -323,6 +320,8 @@ function anonymise_others() {
             $noncoreplugins[$name] = $allplugins[$pluginname];
         }
     }
+
+    debugging('Deleting non-core db tables', DEBUG_DEVELOPER);
 
     // Delete all non-core mdl_config_plugins records and tables.
     if ($noncoreplugins) {
@@ -345,6 +344,8 @@ function anonymise_others() {
         }
     }
 
+    debugging('Deleting config_plugins data', DEBUG_DEVELOPER);
+
     // Delete core plugins sensitive mdl_config_plugins records.
     $sensitiveplugins = array('auth_cas', 'auth_db', 'auth_fc', 'auth_imap', 'auth_ldap', 'auth_nntp', 'auth_pam', 'auth_pop3',
         'auth_shibboleth',
@@ -364,6 +365,8 @@ function anonymise_others() {
 
     // Also hub, which is not a plugin but its data is stored in config_plugins.
     $DB->delete_records('config_plugins', array('plugin' => 'hub'));
+
+    debugging('Deleting config sensitive data', DEBUG_DEVELOPER);
 
     // Also delete core sensitive records in mdl_config.
     $sensitiveconfigvalues = array(
@@ -385,6 +388,8 @@ function anonymise_others() {
         }
     }
 
+    debugging('Deleting other stuff', DEBUG_DEVELOPER);
+
     // Other records.
     $DB->delete_records('user_preferences', array('name' => 'login_lockout_secret'));
     $DB->delete_records('user_preferences', array('name' => 'flickr_'));
@@ -392,6 +397,18 @@ function anonymise_others() {
     $DB->delete_records('user_preferences', array('name' => 'dropbox__request_secret'));
 
     $DB->delete_records('sessions');
+    $DB->delete_records('log');
+    $DB->delete_records('config_log');
+    $DB->delete_records('portfolio_log');
+    $DB->delete_records('mnet_log');
+    $DB->delete_records('upgrade_log');
+    $DB->delete_records('scorm_aicc_session');
+    $DB->delete_records('mnet_session');
+    $DB->delete_records('user_password_history');
+    $DB->delete_records('user_password_resets');
+    $DB->delete_records('user_private_key');
+
+    debugging('Getting rid of all ips', DEBUG_DEVELOPER);
 
     // Get rid of all ips.
     $params = array('ip' => '1.1.1.1');
@@ -407,10 +424,6 @@ function anonymise_others() {
     $DB->execute($updateips, $params);
     $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
     $DB->execute($updateips, $params);
-    $updateips = "UPDATE {logstore_standard_log} SET ip = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {log} SET ip = :ip";
-    $DB->execute($updateips, $params);
     $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
     $DB->execute($updateips, $params);
     $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
@@ -420,28 +433,86 @@ function anonymise_others() {
     $updateips = "UPDATE {block_spam_deletion_akismet} SET user_ip = :ip";
     $DB->execute($updateips, $params);
 
+    // We don't want to anonymise these database table columns because the system would not work as expected
+    // without them or they contain numeric or they contain data that do not need to be anonymised.
+    $excludedcolumns = get_excluded_text_columns();
+
+    // List of varchar fields to anonymise, already excluded varchar fields that are required by the system
+    // to work properly.
+    $varchars = get_varchar_fields_to_update();
+
+    // Iterate through all system tables and set random values to text and varchar fields.
+    $tables = $DB->get_tables(false);
+    foreach ($tables as $tablename) {
+
+        if (!debugging('', DEBUG_DEVELOPER)) {
+            echo BLOCK_CHAR . ' ';
+        }
+
+        $toupdate = array();
+        $columns = $DB->get_columns($tablename, false);
+        foreach ($columns as $columnname => $column) {
+
+            // Some text fields can not be cleared or the site would not make sense.
+            if (!empty($excludedcolumns[$tablename]) && in_array($columnname, $excludedcolumns[$tablename])) {
+                continue;
+            }
+
+            // Text fields, all of them but the excluded ones.
+            if (($DB->get_dbfamily() === 'postgres' && $column->type === 'text') ||
+                ($DB->get_dbfamily() === 'mysql' && $column->type === 'longtext')) {
+                $toupdate[$columnname] = $columnname;
+            }
+
+            // All listed varchars.
+            if (!empty($varchars[$tablename]) && !empty($varchars[$tablename][$columnname])) {
+                $toupdate[$columnname] = $columnname;
+            }
+        }
+
+        // Update all table records if there is any text column that should be cleaned.
+        if (!empty($toupdate)) {
+            debugging('Anonymising ' . $tablename . ' records', DEBUG_DEVELOPER);
+            anonymise_table_records($tablename, $toupdate);
+        }
+    }
+
     purge_all_caches();
 }
 
 function anonymise_table_records($tablename, $columns) {
     global $DB;
 
-    $records = $DB->get_recordset($tablename);
+    try {
+        $records = $DB->get_recordset($tablename);
+    } catch (dml_exception $ex) {
+        mtrace('Skipping ' . $tablename . ' table anonymisation process as it does not exist in this Moodle site');
+        return;
+    }
+
     foreach ($records as $record) {
         $updaterecord = false;
 
         // Set each of the text columns value to a random string with the same length.
         foreach ($columns as $columnname) {
+
+            // Skip unexisting columns.
+            if (!isset($record->{$columnname})) {
+                mtrace('Skipping ' . $columnname . ' column in ' . $tablename . ' table as it does not exist in this Moodle site');
+                continue;
+            }
+
             $len = \core_text::strlen($record->{$columnname});
             if ($len) {
                 $updaterecord = true;
-                $record->{$columnname} = random_string($len);
+                $record->{$columnname} = assign_random_string($len);
             }
         }
         if ($updaterecord) {
             $DB->update_record($tablename, $record);
         }
     }
+    $records->close();
 }
 
 function assign_if_not_null(&$object, $field, $newvalue) {
@@ -454,7 +525,16 @@ function assign_if_not_null(&$object, $field, $newvalue) {
     }
 }
 
-function random_id() {
+function assign_random_string($len) {
+    $random = random_string($len);
+
+    // Add some spacing so texts don't appear in 1 single line.
+    $random = preg_replace("/\d/"," ", $random);
+
+    return $random;
+}
+
+function assign_random_id() {
 
     // Keep track of used IDs during the running of the script.
     static $usedids = array();
@@ -468,7 +548,7 @@ function random_id() {
     return $id;
 }
 
-function get_excluded_columns() {
+function get_excluded_text_columns() {
     return array(
         'config' => array('value'),
         'config_plugins' => array('value'),
@@ -511,5 +591,110 @@ function get_excluded_columns() {
         'survey_questions' => array('options'),
         'url' => array('displayoptions', 'parameters'),
         'imscp' => array('structure')
+    );
+}
+
+function get_varchar_fields_to_update() {
+
+    // I've left role names in db as they are although not 100% sure.
+    // I've left tag as they are.
+    return array(
+        'assign' => array('name'),
+        'assignment' => array('name'),
+        'badge' => array('name', 'issuername', 'issuerurl', 'issuercontact'),
+        'badge_backpack' => array('email', 'backpackurl', 'password'),
+        'block_community' => array('coursename', 'courseurl', 'imageurl'),
+        'block_rss_client' => array('preferredtitle', 'url'),
+        'blog_external' => array('name'),
+        'book' => array('name'),
+        'book_chapters' => array('title', 'importsrc'),
+        'chat' => array('name'),
+        'chat_users' => array('sid'),
+        'choice' => array('name'),
+        'cohort' => array('name', 'idnumber'),
+        'course_categories' => array('name', 'idnumber'),
+        'course_published' => array('huburl'),
+        'course_request' => array('fullname', 'shortname', 'password'),
+        'course_sections' => array('name'),
+        'course_modules' => array('idnumber'),
+        'course' => array('fullname', 'shortname', 'idnumber'),
+        'enrol' => array('name', 'password'),
+        'enrol_paypal' => array('business', 'receiver_email', 'receiver_id', 'item_name', 'memo', 'tax', 'pending_reason', 'reason_code', 'txn_id', 'parent_txn_id'),
+        'feedback' => array('name'),
+        'feedback_item' => array('name', 'label', 'dependvalue'),
+        'feedback_template' => array('name'),
+        'files' => array('filename', 'author'),
+        'forum_posts' => array('subject'),
+        'glossary' => array('name'),
+        'glossary_entries' => array('concept'),
+        'grade_categories' => array('fullname'),
+        'forum_discussions' => array('name'),
+        'forum' => array('name'),
+        'grade_categories_history' => array('fullname'),
+        'grade_import_newitem' => array('itemname'),
+        'grade_items' => array('itemname'),
+        'grade_items_history' => array('itemname'),
+        'grade_outcomes' => array('shortname'),
+        'grade_outcomes_history' => array('shortname'),
+        'grading_definitions' => array('name'),
+        'gradingform_guide_criteria' => array('shortname'),
+        'groupings' => array('name', 'idnumber'),
+        'groups' => array('name', 'idnumber', 'enrolmentkey'),
+        'imscp' => array('name'),
+        'label' => array('name'),
+        'lesson' => array('name', 'password'),
+        'lesson_overrides' => array('password'),
+        'lesson_pages' => array('title'),
+        'logstore_standard_log' => array('ip'),
+        'lti' => array('name', 'instructorcustomparameters', 'resourcekey', 'password', 'servicesalt'),
+        'lti_tool_proxies' => array('name', 'secret', 'vendorcode', 'name'),
+        'lti_types' => array('name', 'tooldomain'),
+        'messageinbound_datakeys' => array('datakey'),
+        'mnet_application' => array('display_name', 'name', 'sso_jump_url', 'sso_land_url', 'xmlrpc_server_url'),
+        'mnet_host' => array('ip_address', 'name', 'wwwroot'),
+        'mnet_remote_rpc' => array('functionname', 'xmlrpcpath'),
+        'mnet_rpc' => array('functionname', 'xmlrpcpath'),
+        'mnet_service' => array('description', 'name'),
+        'mnet_sso_access_control' => array('accessctrl', 'username'),
+        'mnetservice_enrol_courses' => array('categoryname', 'fullname', 'idnumber', 'rolename', 'shortname'),
+        'mnetservice_enrol_enrolments' => array('rolename'),
+        'page' => array('name'),
+        'portfolio_instance' => array('name'),
+        'portfolio_mahara_queue' => array('token'),
+        'post' => array('subject'),
+        'profiling' => array('url'),
+        'qtype_match_subquestions' => array('answertext'),
+        'question' => array('name'),
+        'question_categories' => array('name'),
+        'question_dataset_definitions' => array('name'),
+        'quiz' => array('name', 'password', 'subnet'),
+        'quiz_overrides' => array('password'),
+        'quiz_sections' => array('heading'),
+        'registration_hubs' => array('hubname', 'huburl', 'secret', 'token'),
+        'repository_instances' => array('name', 'password', 'username'),
+        'resource' => array('name'),
+        'resource_old' => array('name'),
+        'scale' => array('name'),
+        'scale_history' => array('name'),
+        'scorm' => array('name', 'sha1hash', 'md5hash'),
+        'scorm_scoes' => array('identifier', 'manifest', 'organization', 'title'),
+        'survey' => array('name'),
+        'tool_monitor_rules' => array('name'),
+        'tool_recyclebin_category' => array('fullname', 'shortname'),
+        'tool_recyclebin_course' => array('name'),
+        'tool_usertours_tours' => array('name'),
+        'url' => array('name'),
+        'user' => array('address', 'aim', 'alternatename', 'city', 'country', 'department', 'email', 'firstname', 'firstnamephonetic', 'icq', 'idnumber', 'imagealt', 'institution', 'lastip', 'lastname', 'lastnamephonetic', 'middlename', 'msn', 'password', 'phone1', 'phone2', 'secret', 'skype', 'url', 'yahoo'),
+        'user_devices' => array('appid', 'model', 'name', 'platform', 'pushid', 'uuid', 'version'),
+        'user_info_category' => array('name'),
+        'wiki' => array('firstpagetitle', 'name'),
+        'wiki_links' => array('tomissingpage'),
+        'wiki_locks' => array('sectionname'),
+        'wiki_pages' => array('title'),
+        'wiki_synonyms' => array('pagesynonym'),
+        'workshop' => array('name'),
+        'workshop_old' => array('name', 'password'),
+        'workshop_submissions' => array('title'),
+        'workshopallocation_scheduled' => array('resultmessage')
     );
 }
