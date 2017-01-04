@@ -23,7 +23,12 @@
  */
 
 defined('MOODLE_INTERNAL') || die;
-define('BLOCK_CHAR', '&#9608;');
+
+if (defined('CLI_SCRIPT') && CLI_SCRIPT == true) {
+    define('BLOCK_CHAR', '.');
+} else {
+    define('BLOCK_CHAR', '&#9608;');
+}
 
 require_once($CFG->libdir . '/formslib.php');
 
