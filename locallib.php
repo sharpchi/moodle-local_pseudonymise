@@ -361,11 +361,11 @@ function anonymise_others() {
         'search_solr'
     );
     foreach ($sensitiveplugins as $pluginname) {
-        $DB->delete_records('config_plugins', array('plugin' => $pluginname));
 
-        // Also delete records stored without the plugintype part of the plugin name.
-        $name = substr($pluginname, strpos($name, '_') + 1);
-        $DB->delete_records('config_plugins', array('plugin' => $name));
+        $shortname = substr($pluginname, strpos($name, '_') + 1);
+
+        $sql = "DELETE FROM {config_plugins} WHERE (plugin = :pluginname OR plugin = :shortname) AND name != 'version'";
+        $DB->execute($sql, array('pluginname' => $pluginname, 'shortname' => $shortname));
     }
 
     // Also hub, which is not a plugin but its data is stored in config_plugins.
