@@ -335,17 +335,16 @@ function anonymise_others() {
 
         foreach ($noncoreplugins as $pluginname => $path) {
 
+            $shortname = substr($pluginname, strpos($pluginname, '_') + 1);
+            $plugintype = substr($pluginname, 0, strpos($pluginname, '_'));
+
+            uninstall_plugin($plugintype, $shortname);
+
+            // Cleanup from core tables.
             $DB->delete_records('config_plugins', array('plugin' => $pluginname));
 
             // Also delete records stored without the plugintype part of the plugin name.
-            $name = substr($pluginname, strpos($name, '_') + 1);
-            $DB->delete_records('config_plugins', array('plugin' => $name));
-
-            // All plugin tables.
-            $dbfile = $path . '/db/install.xml';
-            if (file_exists($dbfile)) {
-                $dbman->delete_tables_from_xmldb_file($dbfile);
-            }
+            $DB->delete_records('config_plugins', array('plugin' => $shortname));
         }
     }
 
