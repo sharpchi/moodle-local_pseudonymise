@@ -218,6 +218,9 @@ function anonymise_users($password = false, $admin = false) {
 
     require_once($CFG->dirroot . '/user/lib.php');
 
+    // Delete all deleted users.
+    $DB->delete_records('user', array('deleted' => 0));
+
     $defaultcity = get_string('defaultusercity', 'local_anonymise');
     $defaultcountry = get_string('defaultusercountry', 'local_anonymise');
     $userstring = strtolower(get_string('user'));
@@ -299,14 +302,14 @@ function anonymise_users($password = false, $admin = false) {
  * - Delete all non-core mdl_config_plugins entries
  * - Delete all core sensitive records from mdl_config_plugins and mdl_config
  * - Delete all user sessions stored data
- * - Update all ips to 1.1.1.1
+ * - Update all ips to 0.0.0.0
  * - Delete core sensitive records that don't fall in any of the points above
  * - Anonymise database text and varchar fields (there is a list of excluded fields)
  *
  * @access public
  * @return void
  */
-function anonymise_others() {
+function anonymise_others($anonymiseactivities) {
     global $DB;
 
     // List all non-standard plugins in the system.
@@ -415,7 +418,7 @@ function anonymise_others() {
     debugging('Getting rid of all ips', DEBUG_DEVELOPER);
 
     // Get rid of all ips.
-    $params = array('ip' => '1.1.1.1');
+    $params = array('ip' => '0.0.0.0');
     $updateips = "UPDATE {user_private_key} SET iprestriction = :ip";
     $DB->execute($updateips, $params);
     $updateips = "UPDATE {user} SET lastip = :ip";
@@ -453,6 +456,9 @@ function anonymise_others() {
     // to work properly.
     $varchars = get_varchar_fields_to_update();
 
+    // List of activities, we skip activity names anonymisation.
+    $activitynamefields = get_activity_name_fields();
+
     // Iterate through all system tables and set random values to text and varchar fields.
     $tables = $DB->get_tables(false);
     foreach ($tables as $tablename) {
@@ -478,7 +484,11 @@ function anonymise_others() {
 
             // All listed varchars.
             if (!empty($varchars[$tablename]) && !empty($varchars[$tablename][$columnname])) {
-                $toupdate[$columnname] = $columnname;
+
+                // Skip activity names if required.
+                if ($anonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) {
+                    $toupdate[$columnname] = $columnname;
+                }
             }
         }
 
@@ -713,4 +723,38 @@ function get_varchar_fields_to_update() {
     }
 
     return $varchars;
+}
+
+function get_activity_name_fields() {
+    $activities = array(
+        'assign' => array('name'),
+        'assignment' => array('name'),
+        'book' => array('name'),
+        'chat' => array('name'),
+        'choice' => array('name'),
+        'data' => array('name'),
+        'feedback' => array('name'),
+        'folder' => array('name'),
+        'forum' => array('name'),
+        'glossary' => array('name'),
+        'imscp' => array('name'),
+        'label' => array('name'),
+        'lesson' => array('name'),
+        'lti' => array('name'),
+        'page' => array('name'),
+        'quiz' => array('name'),
+        'resource' => array('name'),
+        'scorm' => array('name'),
+        'survey' => array('name'),
+        'url' => array('name'),
+        'wiki' => array('name'),
+        'workshop' => array('name'),
+    );
+
+    foreach ($activities as $tablename => $columns) {
+        $activities[$tablename] = array_combine($columns, $columns);
+    }
+
+    return $activities;
+
 }

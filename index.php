@@ -82,7 +82,7 @@ if ($anonymise) {
 
     if ($others) {
         echo $OUTPUT->heading(get_string('others', 'local_anonymise'), 3);
-        anonymise_others();
+        anonymise_others($activities);
     }
 
     echo html_writer::tag('p', get_string('done', 'local_anonymise'), array('style' => 'margin-top: 20px;'));

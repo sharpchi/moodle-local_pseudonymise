@@ -35,6 +35,6 @@ $string['pluginname'] = 'Anonymise';
 $string['purgelink'] = 'purge caches';
 $string['purgeprompt'] = 'In order to finalise the anonymisation, you should';
 $string['resetpasswords'] = 'Reset passwords';
-$string['others'] = 'Anonymise all other potentially sensitive contents';
+$string['others'] = 'Anonymise all other potentially sensitive contents (except activity names, only anonymised when \'Anonymise activities\' is selected)';
 $string['users'] = 'Anonymise users';
 $string['warning'] = '<strong>WARNING:</strong> This will alter data across your whole site. <br/><br/>The web interface is not recommended, this is a heavy process and it can get stucked if your site is big. Please, use the CLI interface (local/anonymise/cli/anonymise.php).';
