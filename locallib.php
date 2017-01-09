@@ -32,6 +32,11 @@ if (defined('CLI_SCRIPT') && CLI_SCRIPT == true) {
 
 require_once($CFG->libdir . '/formslib.php');
 
+// Files required by uninstallation processes.
+require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->libdir . '/filelib.php');
+
 /**
  * Action form for the Anonmise page.
  *
@@ -329,7 +334,7 @@ function anonymise_others($anonymiseactivities) {
         }
     }
 
-    debugging('Deleting non-core db tables', DEBUG_DEVELOPER);
+    debugging('Uninstalling non-core stuff', DEBUG_DEVELOPER);
 
     // Delete all non-core mdl_config_plugins records and tables.
     if ($noncoreplugins) {
@@ -341,13 +346,25 @@ function anonymise_others($anonymiseactivities) {
             $shortname = substr($pluginname, strpos($pluginname, '_') + 1);
             $plugintype = substr($pluginname, 0, strpos($pluginname, '_'));
 
-            uninstall_plugin($plugintype, $shortname);
+            try {
+                uninstall_plugin($plugintype, $shortname);
+            } catch (moodle_exception $e) {
+                // Catch any possible issue with 3rd party code. Notify it and provide a workaround.
+                debugging('Not possible to complete ' . $pluginname . ' uninstall process, falling back to database tables ' .
+                    'and config values removal');
 
-            // Cleanup from core tables.
-            $DB->delete_records('config_plugins', array('plugin' => $pluginname));
+                // Delete all plugin tables.
+                $dbfile = $path . '/db/install.xml';
+                if (file_exists($dbfile)) {
+                    $dbman->delete_tables_from_xmldb_file($dbfile);
+                }
 
-            // Also delete records stored without the plugintype part of the plugin name.
-            $DB->delete_records('config_plugins', array('plugin' => $shortname));
+                // Cleanup from core tables.
+                $DB->delete_records('config_plugins', array('plugin' => $pluginname));
+
+                // Also delete records stored without the plugintype part of the plugin name.
+                $DB->delete_records('config_plugins', array('plugin' => $shortname));
+            }
         }
     }
 
