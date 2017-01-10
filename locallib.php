@@ -224,7 +224,7 @@ function anonymise_users($password = false, $admin = false) {
     require_once($CFG->dirroot . '/user/lib.php');
 
     // Delete all deleted users.
-    $DB->delete_records('user', array('deleted' => 0));
+    $DB->delete_records('user', array('deleted' => 1));
 
     $defaultcity = get_string('defaultusercity', 'local_anonymise');
     $defaultcountry = get_string('defaultusercountry', 'local_anonymise');
