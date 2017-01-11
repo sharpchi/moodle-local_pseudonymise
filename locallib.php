@@ -721,7 +721,7 @@ function get_varchar_fields_to_update() {
         'tool_recyclebin_course' => array('name'),
         'tool_usertours_tours' => array('name'),
         'url' => array('name'),
-        'user' => array('address', 'aim', 'alternatename', 'city', 'country', 'department', 'email', 'firstname', 'firstnamephonetic', 'icq', 'idnumber', 'imagealt', 'institution', 'lastip', 'lastname', 'lastnamephonetic', 'middlename', 'msn', 'password', 'phone1', 'phone2', 'secret', 'skype', 'url', 'yahoo'),
+        'user' => array('address', 'aim', 'alternatename', 'city', 'department', 'email', 'firstname', 'firstnamephonetic', 'icq', 'idnumber', 'imagealt', 'institution', 'lastip', 'lastname', 'lastnamephonetic', 'middlename', 'msn', 'password', 'phone1', 'phone2', 'secret', 'skype', 'url', 'yahoo'),
         'user_devices' => array('appid', 'model', 'name', 'platform', 'pushid', 'uuid', 'version'),
         'user_info_category' => array('name'),
         'wiki' => array('firstpagetitle', 'name'),
