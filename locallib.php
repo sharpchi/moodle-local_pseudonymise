@@ -314,7 +314,7 @@ function anonymise_users($password = false, $admin = false) {
  * @access public
  * @return void
  */
-function anonymise_others($anonymiseactivities) {
+function anonymise_others($anonymiseactivities, $anonymisepassword) {
     global $DB;
 
     // List all non-standard plugins in the system.
@@ -329,8 +329,11 @@ function anonymise_others($anonymiseactivities) {
         $plugintypenoncore = array_diff(array_keys($allplugins), $standardplugins);
 
         foreach ($plugintypenoncore as $pluginname) {
-            $name = $plugintype . '_' . $pluginname;
-            $noncoreplugins[$name] = $allplugins[$pluginname];
+            // We don't want to delete local anonymise.
+            if ($plugintype !== 'local' && $pluginname !== 'anonymise') {
+                $name = $plugintype . '_' . $pluginname;
+                $noncoreplugins[$name] = $allplugins[$pluginname];
+            }
         }
     }
 
@@ -381,7 +384,7 @@ function anonymise_others($anonymiseactivities) {
     );
     foreach ($sensitiveplugins as $pluginname) {
 
-        $shortname = substr($pluginname, strpos($name, '_') + 1);
+        $shortname = substr($pluginname, strpos($pluginname, '_') + 1);
 
         $sql = "DELETE FROM {config_plugins} WHERE (plugin = :pluginname OR plugin = :shortname) AND name != 'version'";
         $DB->execute($sql, array('pluginname' => $pluginname, 'shortname' => $shortname));
@@ -420,43 +423,113 @@ function anonymise_others($anonymiseactivities) {
     $DB->delete_records('user_preferences', array('name' => 'flickr__nsid'));
     $DB->delete_records('user_preferences', array('name' => 'dropbox__request_secret'));
 
-    $DB->delete_records('sessions');
-    $DB->delete_records('log');
-    $DB->delete_records('config_log');
-    $DB->delete_records('portfolio_log');
-    $DB->delete_records('mnet_log');
-    $DB->delete_records('upgrade_log');
-    $DB->delete_records('scorm_aicc_session');
-    $DB->delete_records('mnet_session');
-    $DB->delete_records('user_password_history');
-    $DB->delete_records('user_password_resets');
-    $DB->delete_records('user_private_key');
+    try {
+        $DB->delete_records('sessions');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('log');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('config_log');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('portfolio_log');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('mnet_log');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('upgrade_log');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('scorm_aicc_session');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('mnet_session');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('user_password_history');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('user_password_resets');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('user_private_key');
+    } catch (dml_exception $e) {
+        // Ignore.
+    }
 
     debugging('Getting rid of all ips', DEBUG_DEVELOPER);
 
     // Get rid of all ips.
     $params = array('ip' => '0.0.0.0');
-    $updateips = "UPDATE {user_private_key} SET iprestriction = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {user} SET lastip = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {registry} SET ipaddress = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {register_downloads} SET ip = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {mnet_log} SET ip = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
-    $DB->execute($updateips, $params);
+    try {
+        $updateips = "UPDATE {user_private_key} SET iprestriction = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {user} SET lastip = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {registry} SET ipaddress = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {register_downloads} SET ip = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
     try {
         $updateips = "UPDATE {chat_users} SET ip = :ip";
         $DB->execute($updateips, $params);
     } catch (dml_exception $ex) {
-        // np, ignoring chat if not installed.
+        // Ignore.
     }
     try {
         $updateips = "UPDATE {logstore_standard_log} SET ip = :ip";
@@ -502,8 +575,9 @@ function anonymise_others($anonymiseactivities) {
             // All listed varchars.
             if (!empty($varchars[$tablename]) && !empty($varchars[$tablename][$columnname])) {
 
-                // Skip activity names if required.
-                if ($anonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) {
+                // Skip activity names and user password if required.
+                if (($anonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) &&
+                        ($anonymisepassword || $tablename !== 'user' || $columnname !== 'password')) {
                     $toupdate[$columnname] = $columnname;
                 }
             }

@@ -123,7 +123,7 @@ if ($options['users']) {
 
 if ($options['others']) {
     echo $OUTPUT->heading(get_string('others', 'local_anonymise'), 3);
-    anonymise_others($options['activities']);
+    anonymise_others($options['activities'], $options['password']);
 }
 
 exit(0);
