@@ -314,7 +314,7 @@ function anonymise_users($password = false, $admin = false) {
  * @access public
  * @return void
  */
-function anonymise_others($anonymiseactivities) {
+function anonymise_others($anonymiseactivities, $anonymisepassword) {
     global $DB;
 
     // List all non-standard plugins in the system.
@@ -502,8 +502,9 @@ function anonymise_others($anonymiseactivities) {
             // All listed varchars.
             if (!empty($varchars[$tablename]) && !empty($varchars[$tablename][$columnname])) {
 
-                // Skip activity names if required.
-                if ($anonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) {
+                // Skip activity names and user password if required.
+                if (($anonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) &&
+                        ($anonymisepassword || $tablename !== 'user' || $columnname !== 'password')) {
                     $toupdate[$columnname] = $columnname;
                 }
             }
