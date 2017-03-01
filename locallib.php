@@ -420,43 +420,119 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
     $DB->delete_records('user_preferences', array('name' => 'flickr__nsid'));
     $DB->delete_records('user_preferences', array('name' => 'dropbox__request_secret'));
 
-    $DB->delete_records('sessions');
-    $DB->delete_records('log');
-    $DB->delete_records('config_log');
-    $DB->delete_records('portfolio_log');
-    $DB->delete_records('mnet_log');
-    $DB->delete_records('upgrade_log');
-    $DB->delete_records('scorm_aicc_session');
-    $DB->delete_records('mnet_session');
-    $DB->delete_records('user_password_history');
-    $DB->delete_records('user_password_resets');
-    $DB->delete_records('user_private_key');
+    try {
+        $DB->delete_records('sessions');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('log');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('config_log');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('portfolio_log');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('mnet_log');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('upgrade_log');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('scorm_aicc_session');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('mnet_session');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('user_password_history');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('user_password_resets');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
+    try {
+        $DB->delete_records('user_private_key');
+    } catch (\moodle_exception $e) {
+        // Ignore.
+    }
 
     debugging('Getting rid of all ips', DEBUG_DEVELOPER);
 
     // Get rid of all ips.
     $params = array('ip' => '0.0.0.0');
-    $updateips = "UPDATE {user_private_key} SET iprestriction = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {user} SET lastip = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {registry} SET ipaddress = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {register_downloads} SET ip = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {mnet_log} SET ip = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
-    $DB->execute($updateips, $params);
-    $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
-    $DB->execute($updateips, $params);
+    try {
+        $updateips = "UPDATE {user_private_key} SET iprestriction = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {user} SET lastip = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {registry} SET ipaddress = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {register_downloads} SET ip = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {mnet_log} SET ip = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
+    try {
+        $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
+        $DB->execute($updateips, $params);
+    } catch (dml_exception $ex) {
+        // Ignore.
+    }
     try {
         $updateips = "UPDATE {chat_users} SET ip = :ip";
         $DB->execute($updateips, $params);
     } catch (dml_exception $ex) {
-        // np, ignoring chat if not installed.
+        // Ignore.
     }
     try {
         $updateips = "UPDATE {logstore_standard_log} SET ip = :ip";
