@@ -78,6 +78,11 @@ if ($options['help']) {
     exit(0);
 }
 
+if (!debugging()) {
+    $url = new moodle_url('/admin/settings.php', array('section' => 'debugging'));
+    throw new moodle_exception('nodebuggingmode', 'local_anonymise', '', $url->out(false));
+}
+
 $unique = array_unique($options);
 if (count($unique) === 1 && reset($unique) === false) {
     echo $help;

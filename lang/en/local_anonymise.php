@@ -30,6 +30,7 @@ $string['done'] = 'Done';
 $string['files'] = 'Anonymise files';
 $string['includeadmin'] = 'Anonymise default administrator (except username and password)';
 $string['includesite'] = 'Anonymise site home course';
+$string['nodebuggingmode'] = '<a href="{$a}">\'Debugging mode\'</a> setting must be set to \'DEVELOPER\' to run the anonymise plugin. This protects production sites from being changed unintentionally';
 $string['password'] = 'plain password';
 $string['pluginname'] = 'Anonymise';
 $string['purgelink'] = 'purge caches';

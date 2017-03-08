@@ -40,6 +40,11 @@ $PAGE->set_heading($title);
 
 echo $OUTPUT->header();
 
+if (!debugging()) {
+    $url = new moodle_url('/admin/settings.php', array('section' => 'debugging'));
+    throw new moodle_exception('nodebuggingmode', 'local_anonymise', '', $url->out(false));
+}
+
 if ($anonymise) {
 
     require_sesskey();

@@ -128,10 +128,6 @@ function anonymise_categories() {
 
     foreach ($allcategories as $category) {
 
-        if (!debugging('', DEBUG_DEVELOPER)) {
-            echo BLOCK_CHAR . ' ';
-        }
-
         $randomid = assign_random_id();
         $category->name = $categoyprefix . ' ' . $randomid;
         assign_if_not_null($category, 'description', $descriptionprefix . $randomid);
@@ -155,10 +151,6 @@ function anonymise_courses($site = false) {
     $courses = $DB->get_recordset('course');
     foreach ($courses as $course) {
 
-        if (!debugging('', DEBUG_DEVELOPER)) {
-            echo BLOCK_CHAR . ' ';
-        }
-
         if (!$site && $course->format == 'site') {
             $sitecourse = $course->id;
             continue;
@@ -178,10 +170,6 @@ function anonymise_courses($site = false) {
     $sections = $DB->get_recordset('course_sections');
     foreach ($sections as $section) {
 
-        if (!debugging('', DEBUG_DEVELOPER)) {
-            echo BLOCK_CHAR . ' ';
-        }
-
         if (!$site && $section->course == $sitecourse) {
             continue;
         }
@@ -200,10 +188,6 @@ function anonymise_files() {
 
     $files = $DB->get_recordset('files');
     foreach ($files as $file) {
-
-        if (!debugging('', DEBUG_DEVELOPER)) {
-            echo BLOCK_CHAR . ' ';
-        }
 
         assign_if_not_null($file, 'author', 'user ' . $file->userid);
         assign_if_not_null($file, 'source', '');
@@ -253,10 +237,6 @@ function anonymise_users($password = false, $admin = false) {
 
     // Clear fields in the user table.
     foreach ($allusers as $user) {
-
-        if (!debugging('', DEBUG_DEVELOPER)) {
-            echo BLOCK_CHAR . ' ';
-        }
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
             continue;
