@@ -40,9 +40,13 @@ $PAGE->set_heading($title);
 
 echo $OUTPUT->header();
 
-if (!debugging()) {
-    $url = new moodle_url('/admin/settings.php', array('section' => 'debugging'));
-    throw new moodle_exception('nodebuggingmode', 'local_anonymise', '', $url->out(false));
+if (!debugging() || empty($CFG->maintenance_enabled)) {
+    $debugging = new moodle_url('/admin/settings.php', array('section' => 'debugging'));
+    $maintenance = new moodle_url('/admin/settings.php', array('section' => 'maintenancemode'));
+    $langparams = (object)array('debugging' => $debugging->out(false), 'maintenance' => $maintenance->out(false));
+    echo $OUTPUT->notification(get_string('nodebuggingmaintenancemode', 'local_anonymise', $langparams));
+    echo $OUTPUT->footer();
+    die();
 }
 
 if ($anonymise) {
