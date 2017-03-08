@@ -78,9 +78,9 @@ if ($options['help']) {
     exit(0);
 }
 
-if (!debugging()) {
-    $url = new moodle_url('/admin/settings.php', array('section' => 'debugging'));
-    throw new moodle_exception('nodebuggingmode', 'local_anonymise', '', $url->out(false));
+if (!debugging() || empty($CFG->maintenance_enabled)) {
+    echo $OUTPUT->notification(get_string('nodebuggingmaintenancemodecli', 'local_anonymise'));
+    exit(1);
 }
 
 $unique = array_unique($options);
