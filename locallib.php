@@ -365,13 +365,17 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
     foreach ($sensitiveplugins as $pluginname) {
 
         $shortname = substr($pluginname, strpos($pluginname, '_') + 1);
+        // e.g. auth plugins before 3.3
+        $oldname = str_replace('_', '/', $pluginname);
 
-        $sql = "DELETE FROM {config_plugins} WHERE (plugin = :pluginname OR plugin = :shortname) AND name != 'version'";
-        $DB->execute($sql, array('pluginname' => $pluginname, 'shortname' => $shortname));
+        $sql = "DELETE FROM {config_plugins} WHERE (plugin = :pluginname OR plugin = :shortname OR plugin = :oldname) AND name != 'version'";
+        $DB->execute($sql, array('pluginname' => $pluginname, 'shortname' => $shortname, 'oldname' => $oldname));
     }
 
     // Also hub, which is not a plugin but its data is stored in config_plugins.
     $DB->delete_records('config_plugins', array('plugin' => 'hub'));
+    $DB->delete_records('config_plugins', array('plugin' => 'mnet'));
+    $DB->delete_records('config_plugins', array('plugin' => 'core_plugin'));
 
     debugging('Deleting config sensitive data', DEBUG_DEVELOPER);
 
@@ -385,7 +389,7 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
         'messageinbound_hostpass', 'messageinbound_hostssl', 'messageinbound_hostuser', 'messageinbound_mailbox', 'noreplyaddress',
         'proxybypass', 'proxyhost', 'proxypassword', 'proxyport', 'proxytype', 'proxyuser', 'recaptchaprivatekey',
         'recaptchapublickey', 'smtphosts', 'smtppass', 'smtpsecure', 'smtpuser', 'supportemail', 'supportname', 'badges_badgesalt',
-        'cronremotepassword'
+        'badges_defaultissuername', 'badges_defaultissuercontact', 'cronremotepassword'
     );
     foreach ($sensitiveconfigvalues as $name) {
         // We update rather than delete because there is code that relies incorrectly on CFG vars being set.
