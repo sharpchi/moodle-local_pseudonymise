@@ -77,8 +77,7 @@ if ($options['help']) {
     echo $help;
     exit(0);
 }
-
-if (!debugging() || empty($CFG->maintenance_enabled)) {
+if (!debugging() || (empty($CFG->maintenance_enabled) && !file_exists("$CFG->dataroot/climaintenance.html"))) {
     echo $OUTPUT->notification(get_string('nodebuggingmaintenancemodecli', 'local_anonymise'));
     exit(1);
 }
