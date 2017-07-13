@@ -105,14 +105,15 @@ function anonymise_activities() {
         } else {
             $modulename = $module->name;
         }
-        $moduleinstances = $DB->get_recordset($module->name);
 
+        $moduleinstances = $DB->get_recordset($module->name);
         foreach ($moduleinstances as $moduleinstance) {
 
             $randomid = assign_random_id();
             $moduleinstance->name = $modulename . ' ' . $randomid;
             $DB->update_record($module->name, $moduleinstance, true);
         }
+        $moduleinstances->close();
     }
 }
 
@@ -120,12 +121,12 @@ function anonymise_categories() {
 
     global $DB;
 
-    $allcategories = $DB->get_recordset('course_categories');
     $categoyprefix = get_string('category');
     $descriptionprefix = get_string('description');
 
     debugging('Anonymising categories', DEBUG_DEVELOPER);
 
+    $allcategories = $DB->get_recordset('course_categories');
     foreach ($allcategories as $category) {
 
         $randomid = assign_random_id();
@@ -134,6 +135,7 @@ function anonymise_categories() {
         assign_if_not_null($category, 'idnumber', $randomid);
         $DB->update_record('course_categories', $category, true);
     }
+    $allcategories->close();
 }
 
 function anonymise_courses($site = false) {
@@ -163,6 +165,7 @@ function anonymise_courses($site = false) {
         assign_if_not_null($course, 'summary', $descriptionprefix . ' ' . $randomid);
         $DB->update_record('course', $course, true);
     }
+    $courses->close();
 
     debugging('Anonymising sections');
 
@@ -179,6 +182,7 @@ function anonymise_courses($site = false) {
 
         $DB->update_record('course_sections', $section, true);
     }
+    $sections->close();
 }
 
 function anonymise_files() {
@@ -199,6 +203,7 @@ function anonymise_files() {
         }
         $DB->update_record('files', $file);
     }
+    $files->close();
 }
 
 function anonymise_users($password = false, $admin = false) {
@@ -231,11 +236,11 @@ function anonymise_users($password = false, $admin = false) {
         'middlename' => get_string('middlename'),
         'alternatename' => get_string('alternatename'),
     );
-    $allusers = $DB->get_recordset('user', array('deleted' => 0));
 
     debugging('Anonymising users');
 
     // Clear fields in the user table.
+    $allusers = $DB->get_recordset('user', array('deleted' => 0));
     foreach ($allusers as $user) {
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
@@ -266,11 +271,12 @@ function anonymise_users($password = false, $admin = false) {
         $user->picture = 0;
         try {
             user_update_user($user, $user->username == 'admin' ? false : $password, false);
-        } catch (moodle_exception $ex) {
+        } catch (Exception $ex) {
             // No problem if there is any inconsistency just skip it.
             debugging('Skipped user ' . $user->id . ' update', DEBUG_DEVELOPER);
         }
     }
+    $allusers->close();
 
     // Clear custom profile fields.
     $customfields = $DB->get_recordset('user_info_data');
@@ -278,6 +284,7 @@ function anonymise_users($password = false, $admin = false) {
         $field->data = '';
         $DB->update_record('user_info_data', $field, true);
     }
+    $customfields->close();
 }
 
 /**
@@ -328,6 +335,7 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
 
             $shortname = substr($pluginname, strpos($pluginname, '_') + 1);
             $plugintype = substr($pluginname, 0, strpos($pluginname, '_'));
+            $legacyname = $plugintype . '/' . $shortname;
 
             try {
                 uninstall_plugin($plugintype, $shortname);
@@ -341,13 +349,16 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
                 if (file_exists($dbfile)) {
                     $dbman->delete_tables_from_xmldb_file($dbfile);
                 }
-
-                // Cleanup from core tables.
-                $DB->delete_records('config_plugins', array('plugin' => $pluginname));
-
-                // Also delete records stored without the plugintype part of the plugin name.
-                $DB->delete_records('config_plugins', array('plugin' => $shortname));
             }
+
+            // Cleanup from core tables regardless of successfull uninstall.
+            $DB->delete_records('config_plugins', array('plugin' => $pluginname));
+
+            // Also delete records stored without the plugintype part of the plugin name.
+            $DB->delete_records('config_plugins', array('plugin' => $shortname));
+
+            // And records using type/name syntax.
+            $DB->delete_records('config_plugins', array('plugin' => $legacyname));
         }
     }
 
@@ -389,7 +400,8 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
         'messageinbound_hostpass', 'messageinbound_hostssl', 'messageinbound_hostuser', 'messageinbound_mailbox', 'noreplyaddress',
         'proxybypass', 'proxyhost', 'proxypassword', 'proxyport', 'proxytype', 'proxyuser', 'recaptchaprivatekey',
         'recaptchapublickey', 'smtphosts', 'smtppass', 'smtpsecure', 'smtpuser', 'supportemail', 'supportname', 'badges_badgesalt',
-        'badges_defaultissuername', 'badges_defaultissuercontact', 'cronremotepassword'
+        'badges_defaultissuername', 'badges_defaultissuercontact', 'cronremotepassword', 'turnitin_account_id', 'turnitin_secret',
+        'turnitin_proxyurl', 'turnitin_proxyport', 'turnitin_proxyuser', 'turnitin_proxypassword'
     );
     foreach ($sensitiveconfigvalues as $name) {
         // We update rather than delete because there is code that relies incorrectly on CFG vars being set.
