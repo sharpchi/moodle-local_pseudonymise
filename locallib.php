@@ -396,7 +396,8 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
         'messageinbound_hostpass', 'messageinbound_hostssl', 'messageinbound_hostuser', 'messageinbound_mailbox', 'noreplyaddress',
         'proxybypass', 'proxyhost', 'proxypassword', 'proxyport', 'proxytype', 'proxyuser', 'recaptchaprivatekey',
         'recaptchapublickey', 'smtphosts', 'smtppass', 'smtpsecure', 'smtpuser', 'supportemail', 'supportname', 'badges_badgesalt',
-        'badges_defaultissuername', 'badges_defaultissuercontact', 'cronremotepassword'
+        'badges_defaultissuername', 'badges_defaultissuercontact', 'cronremotepassword', 'turnitin_account_id', 'turnitin_secret',
+        'turnitin_proxyurl', 'turnitin_proxyport', 'turnitin_proxyuser', 'turnitin_proxypassword'
     );
     foreach ($sensitiveconfigvalues as $name) {
         // We update rather than delete because there is code that relies incorrectly on CFG vars being set.
