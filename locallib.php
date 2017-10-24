@@ -17,7 +17,7 @@
 /**
  * Code checker library code.
  *
- * @package    local_anonymise
+ * @package    local_pseudonymise
  * @copyright  Gavin Henrick
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,12 +38,12 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/filelib.php');
 
 /**
- * Action form for the Anonmise page.
+ * Action form for the Pseudonymise page.
  *
  * @copyright  Gavin Henrick
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_anonymise_form extends moodleform {
+class local_pseudonymise_form extends moodleform {
     protected function definition() {
         $mform = $this->_form;
 
@@ -51,48 +51,48 @@ class local_anonymise_form extends moodleform {
         $mform->addElement('hidden', 'sesskey', sesskey());
         $mform->setType('action', PARAM_BOOL);
 
-        $mform->addElement('checkbox', 'activities', get_string('activities', 'local_anonymise'));
+        $mform->addElement('checkbox', 'activities', get_string('activities', 'local_pseudonymise'));
         $mform->setType('activities', PARAM_BOOL);
 
-        $mform->addElement('checkbox', 'categories', get_string('categories', 'local_anonymise'));
+        $mform->addElement('checkbox', 'categories', get_string('categories', 'local_pseudonymise'));
         $mform->setType('categories', PARAM_BOOL);
 
-        $mform->addElement('checkbox', 'courses', get_string('courses', 'local_anonymise'));
+        $mform->addElement('checkbox', 'courses', get_string('courses', 'local_pseudonymise'));
         $mform->setType('courses', PARAM_BOOL);
 
-        $mform->addElement('checkbox', 'site', get_string('includesite', 'local_anonymise'));
+        $mform->addElement('checkbox', 'site', get_string('includesite', 'local_pseudonymise'));
         $mform->setType('site', PARAM_BOOL);
         $mform->disabledIf('site', 'courses', 'notchecked');
 
-        $mform->addElement('checkbox', 'files', get_string('files', 'local_anonymise'));
+        $mform->addElement('checkbox', 'files', get_string('files', 'local_pseudonymise'));
         $mform->setType('files', PARAM_BOOL);
 
-        $mform->addElement('checkbox', 'users', get_string('users', 'local_anonymise'));
+        $mform->addElement('checkbox', 'users', get_string('users', 'local_pseudonymise'));
         $mform->setType('users', PARAM_BOOL);
 
-        $mform->addElement('checkbox', 'password', get_string('resetpasswords', 'local_anonymise'));
+        $mform->addElement('checkbox', 'password', get_string('resetpasswords', 'local_pseudonymise'));
         $mform->setType('password', PARAM_BOOL);
         $mform->setDefault('password', 'checked');
         $mform->disabledIf('password', 'users', 'notchecked');
 
-        $mform->addElement('checkbox', 'admin', get_string('includeadmin', 'local_anonymise'));
+        $mform->addElement('checkbox', 'admin', get_string('includeadmin', 'local_pseudonymise'));
         $mform->setType('users', PARAM_BOOL);
         $mform->disabledIf('admin', 'users', 'notchecked');
 
-        $mform->addElement('checkbox', 'others', get_string('others', 'local_anonymise'));
+        $mform->addElement('checkbox', 'others', get_string('others', 'local_pseudonymise'));
         $mform->setType('others', PARAM_BOOL);
 
-        $mform->addElement('submit', 'submitbutton', get_string('anonymise', 'local_anonymise'));
+        $mform->addElement('submit', 'submitbutton', get_string('anonymise', 'local_pseudonymise'));
     }
 }
 
-function anonymise_activities() {
+function pseudonymise_activities() {
 
     global $DB;
 
     $modules = $DB->get_records('modules');
 
-    debugging('Anonymising activities', DEBUG_DEVELOPER);
+    debugging('Pseudonymising activities', DEBUG_DEVELOPER);
 
     foreach ($modules as $module) {
 
@@ -109,36 +109,38 @@ function anonymise_activities() {
         $moduleinstances = $DB->get_recordset($module->name);
         foreach ($moduleinstances as $moduleinstance) {
 
-            $randomid = assign_random_id();
-            $moduleinstance->name = $modulename . ' ' . $randomid;
+            /* $randomid = assign_random_id(); */
+            $pseudoid = assign_pseudo_id();
+            $moduleinstance->name = $modulename . ' ' . $pseudoid;
             $DB->update_record($module->name, $moduleinstance, true);
         }
         $moduleinstances->close();
     }
 }
 
-function anonymise_categories() {
+function pseudoonymise_categories() {
 
     global $DB;
 
     $categoyprefix = get_string('category');
     $descriptionprefix = get_string('description');
 
-    debugging('Anonymising categories', DEBUG_DEVELOPER);
+    debugging('Pseudonymising categories', DEBUG_DEVELOPER);
 
     $allcategories = $DB->get_recordset('course_categories');
     foreach ($allcategories as $category) {
 
-        $randomid = assign_random_id();
-        $category->name = $categoyprefix . ' ' . $randomid;
-        assign_if_not_null($category, 'description', $descriptionprefix . $randomid);
-        assign_if_not_null($category, 'idnumber', $randomid);
+    /* $randomid = assign_random_id(); */
+    $pseudoid = assign_pseudo_id();
+        $category->name = $categoyprefix . ' ' . $pseudoid;
+        assign_if_not_null($category, 'description', $descriptionprefix . $pseudoid);
+        assign_if_not_null($category, 'idnumber', $pseudoid);
         $DB->update_record('course_categories', $category, true);
     }
     $allcategories->close();
 }
 
-function anonymise_courses($site = false) {
+function pseudonymise_courses($site = false) {
 
     global $DB;
 
@@ -147,9 +149,9 @@ function anonymise_courses($site = false) {
     $sectionprefix = get_string('section');
     $sitecourse = 1;
 
-    debugging('Anonymising courses');
+    debugging('Pseudonymising courses');
 
-    // Anonymise course data.
+    // Pseudonymise course data.
     $courses = $DB->get_recordset('course');
     foreach ($courses as $course) {
 
@@ -158,18 +160,19 @@ function anonymise_courses($site = false) {
             continue;
         }
 
-        $randomid = assign_random_id();
-        $course->fullname = $courseprefix . ' ' . $randomid;
-        $course->shortname = $courseprefix . ' ' . $randomid;
-        assign_if_not_null($course, 'idnumber', $randomid);
-        assign_if_not_null($course, 'summary', $descriptionprefix . ' ' . $randomid);
+    /* $randomid = assign_random_id(); */
+     $pseudoid = assign_pseudo_id();
+        $course->fullname = $courseprefix . ' ' . $pseudoid;
+        $course->shortname = $courseprefix . ' ' . $pseudoid;
+        assign_if_not_null($course, 'idnumber', $pseudoid);
+        assign_if_not_null($course, 'summary', $descriptionprefix . ' ' . $pseudoid);
         $DB->update_record('course', $course, true);
     }
     $courses->close();
 
-    debugging('Anonymising sections');
+    debugging('Pseudonymising sections');
 
-    // Anonymise sections.
+    // Pseudonymise sections - replace with numbers
     $sections = $DB->get_recordset('course_sections');
     foreach ($sections as $section) {
 
@@ -185,10 +188,10 @@ function anonymise_courses($site = false) {
     $sections->close();
 }
 
-function anonymise_files() {
+function pseudonymise_files() {
     global $DB;
 
-    debugging('Anonymising files');
+    debugging('Pseudonymising files');
 
     $files = $DB->get_recordset('files');
     foreach ($files as $file) {
@@ -196,17 +199,17 @@ function anonymise_files() {
         assign_if_not_null($file, 'author', 'user ' . $file->userid);
         assign_if_not_null($file, 'source', '');
         if ($file->filename !== '.') {
-            assign_if_not_null($file, 'filename', assign_random_id());
+            assign_if_not_null($file, 'filename', assign_pseudo_id());
         }
         if ($file->filepath !== '/') {
-            assign_if_not_null($file, 'filepath', '/' . assign_random_id() . '/');
+            assign_if_not_null($file, 'filepath', '/' . assign_pseudo_id() . '/');
         }
         $DB->update_record('files', $file);
     }
     $files->close();
 }
 
-function anonymise_users($password = false, $admin = false) {
+function pseudonymise_users($password = false, $admin = false) {
 
     global $CFG, $DB;
 
@@ -215,10 +218,10 @@ function anonymise_users($password = false, $admin = false) {
     // Delete all deleted users.
     $DB->delete_records('user', array('deleted' => 1));
 
-    $defaultcity = get_string('defaultusercity', 'local_anonymise');
-    $defaultcountry = get_string('defaultusercountry', 'local_anonymise');
+    $defaultcity = get_string('defaultusercity', 'local_pseudonymise');
+    $defaultcountry = get_string('defaultusercountry', 'local_pseudonymise');
     $userstring = strtolower(get_string('user'));
-    $domain = get_string('defaultdomain', 'local_anonymise');
+    $domain = get_string('defaultdomain', 'local_pseudonymise');
     $fields = array(
         'firstname' => get_string('firstname'),
         'lastname' => get_string('lastname'),
@@ -237,7 +240,7 @@ function anonymise_users($password = false, $admin = false) {
         'alternatename' => get_string('alternatename'),
     );
 
-    debugging('Anonymising users');
+    debugging('Pseudonymising users');
 
     // Clear fields in the user table.
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
@@ -247,17 +250,22 @@ function anonymise_users($password = false, $admin = false) {
             continue;
         }
 
-        $randomid = assign_random_id();
+        $pseudoid = assign_pseudo_id();
+        /* this function is specific to assigning a plausible given name */
+        $pseudogname = assign_pseudo_gname();
+        /* this function is specific to assigning a plausible surname */
+        $pseudosname = assign_pseudo_sname();
         if ($user->username != 'admin') {
-            $user->username = $userstring . $randomid;
+            $user->username = $userstring . $pseudogname . $pseudosname;
         }
-        assign_if_not_null($user, 'idnumber', $randomid);
+        /* assign_if_not_null($user, 'idnumber', $pseudoid); */
+        assign_if_not_null($user, 'idnumber', $pseudogname . $pseudosname);
         foreach ($fields as $field => $translation) {
-            assign_if_not_null($user, $field, $translation . ' ' . $randomid);
+            assign_if_not_null($user, $field, $translation . ' ' . $pseudoid);
         }
 
         // Moving here fields specially small, we need to limit their size.
-        assign_if_not_null($user, 'email', $randomid . '@'. $domain);
+        assign_if_not_null($user, 'email', $pseudogname . $pseudosname . '@'. $domain);
         assign_if_not_null($user, 'icq', 'icq ' . substr($randomid, 0, 10));
         assign_if_not_null($user, 'phone1', 'phone1 ' . substr($randomid, 0, 12));
         assign_if_not_null($user, 'phone2', 'phone2 ' . substr($randomid, 0, 12));
@@ -301,7 +309,7 @@ function anonymise_users($password = false, $admin = false) {
  * @access public
  * @return void
  */
-function anonymise_others($anonymiseactivities, $anonymisepassword) {
+function pseudonymise_others($pseudonymiseactivities, $pseudonymisepassword) {
     global $DB;
 
     // List all non-standard plugins in the system.
@@ -316,8 +324,8 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
         $plugintypenoncore = array_diff(array_keys($allplugins), $standardplugins);
 
         foreach ($plugintypenoncore as $pluginname) {
-            // We don't want to delete local anonymise.
-            if ($plugintype !== 'local' && $pluginname !== 'anonymise') {
+            // We don't want to delete local pseudonymise.
+            if ($plugintype !== 'local' && $pluginname !== 'pseudonymise') {
                 $name = $plugintype . '_' . $pluginname;
                 $noncoreplugins[$name] = $allplugins[$pluginname];
             }
@@ -534,15 +542,15 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
         // np, ignoring logstore_standard if not installed (although not worth the dataset if uninstalled....).
     }
 
-    // We don't want to anonymise these database table columns because the system would not work as expected
-    // without them or they contain numeric or they contain data that do not need to be anonymised.
+    // We don't want to pseudonymise these database table columns because the system would not work as expected
+    // without them or they contain numeric or they contain data that do not need to be pseudonymised.
     $excludedcolumns = get_excluded_text_columns();
 
-    // List of varchar fields to anonymise, already excluded varchar fields that are required by the system
+    // List of varchar fields to pseudonymise, already excluded varchar fields that are required by the system
     // to work properly.
     $varchars = get_varchar_fields_to_update();
 
-    // List of activities, we skip activity names anonymisation.
+    // List of activities, we skip activity names pseudonymisation.
     $activitynamefields = get_activity_name_fields();
 
     // Iterate through all system tables and set random values to text and varchar fields.
@@ -572,8 +580,8 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
             if (!empty($varchars[$tablename]) && !empty($varchars[$tablename][$columnname])) {
 
                 // Skip activity names and user password if required.
-                if (($anonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) &&
-                        ($anonymisepassword || $tablename !== 'user' || $columnname !== 'password')) {
+                if (($pseudonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) &&
+                        ($pseudonymisepassword || $tablename !== 'user' || $columnname !== 'password')) {
                     $toupdate[$columnname] = $columnname;
                 }
             }
@@ -581,21 +589,21 @@ function anonymise_others($anonymiseactivities, $anonymisepassword) {
 
         // Update all table records if there is any text column that should be cleaned.
         if (!empty($toupdate)) {
-            debugging('Anonymising ' . $tablename . ' records', DEBUG_DEVELOPER);
-            anonymise_table_records($tablename, $toupdate);
+            debugging('Pseudonymising ' . $tablename . ' records', DEBUG_DEVELOPER);
+            pseudonymise_table_records($tablename, $toupdate);
         }
     }
 
     purge_all_caches();
 }
 
-function anonymise_table_records($tablename, $columns) {
+function pseudonymise_table_records($tablename, $columns) {
     global $DB;
 
     try {
         $records = $DB->get_recordset($tablename);
     } catch (dml_exception $ex) {
-        mtrace('Skipping ' . $tablename . ' table anonymisation process as it does not exist in this Moodle site');
+        mtrace('Skipping ' . $tablename . ' table pseudonymisation process as it does not exist in this Moodle site');
         return;
     }
 
@@ -609,7 +617,7 @@ function anonymise_table_records($tablename, $columns) {
             if (!isset($record->{$columnname})) {
                 continue;
             }
-
+            /* not changing this for pseudonymiser for now, but later may try to preserve some lexical markers */
             $len = \core_text::strlen($record->{$columnname});
             if ($len) {
                 $updaterecord = true;
@@ -646,6 +654,22 @@ function assign_random_id() {
 
     // Keep track of used IDs during the running of the script.
     static $usedids = array();
+
+    do {
+        $id = rand(1, PHP_INT_MAX);
+    } while (array_search($id, $usedids) !== false);
+
+    $usedids[] = $id;
+
+    return $id;
+}
+
+function assign_pseudo_id() {
+
+    // rather than just assigning a random string of junk,
+    // this algorithm assembles a phrase string consisting of serialized words in base 26
+    // Keep track of used IDs during the running of the script.
+    static $usedpseudoids = array();
 
     do {
         $id = rand(1, PHP_INT_MAX);
