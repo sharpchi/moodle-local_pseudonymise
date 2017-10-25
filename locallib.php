@@ -664,16 +664,637 @@ function assign_random_id() {
     return $id;
 }
 
-function assign_pseudo_id() {
+function assign_pseudo_id($len) {
 
     // rather than just assigning a random string of junk,
     // this algorithm assembles a phrase string consisting of serialized words in base 26
+    // accept a length parameter to determine how long the phrase needs to be for uniqueness
+    // 1 word: animal 26 possibilities
+    // 2 words: animal with fruit 26*26 = 676
+    // 3 words: color animal with fruit 26*676 = 17,576
+    // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
+    // 5 words: verb, adjective, color, animal with fruit 26*456976 = 11,881,376
+    // 6 words: adverb, verb, adjective, color, animal with fruit 26*11881376 = 308,915,776
+    // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
+    // if > 7, add a number at the end of the string containing modulus
     // Keep track of used IDs during the running of the script.
     static $usedpseudoids = array();
+     do {
+    
+    // pick animal//
+    // 1 word: animal 26 possibilities
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Armadillos";
+            break;
+        case 2:
+            $id = "Buffaloes";
+                break;         
+        case 3:
+            $id = "Cats";
+            break;
+        case 4:
+            $id = "Dogs";
+            break;
+        case 5:
+            $id = "Elephants";
+            break;
+        case 6:
+            $id = "Foxes";
+            break;
+        case 7:
+            $id = "Giraffes";
+            break;
+        case 8:
+            $id = "Horses";
+            break;
+        case 9:
+            $id = "Iguanas";
+            break;
+        case 10:
+            $id = "Jaguars";
+            break;
+        case 11:
+            $id = "Koalas";
+            break;
+        case 12:
+            $id = "Leopards";
+            break;
+        case 13:
+            $id = "Monkeys";
+            break;
+        case 14:
+            $id = "Nightingales";
+            break;
+        case 15:
+            $id = "Ostriches";
+            break;
+        case 16:
+            $id = "Penguins";
+            break;
+        case 17:
+            $id = "Quails";
+            break;
+        case 18:
+            $id = "Rhinoceros";
+            break;
+        case 19:
+            $id = "Sharks";
+            break;
+        case 20:
+            $id = "Turtles";
+            break;
+        case 21:
+            $id = "Unicorns";
+            break;
+        case 22:
+            $id = "Vultures";
+            break;
+        case 23:
+            $id = "Whales";
+            break;
+        case 24:
+            $id = "Xeruses";
+            break;
+        case 25:
+            $id = "Yaks";
+            break;
+        case 26:
+            $id = "Zebras";
+            break;
+    } //switch
+     
 
-    do {
-        $id = rand(1, PHP_INT_MAX);
-    } while (array_search($id, $usedids) !== false);
+          
+    // add "with" and fruit//
+    // 2 words: animal with fruit 26*26 = 676
+  if $len > 26 { 
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = $id . " with " . "Apples";
+            break;
+        case 2:
+            $id = $id . " with " . "Bananas";
+                break;         
+        case 3:
+            $id = $id . " with " . "Cherries";
+            break;
+        case 4:
+            $id = $id . " with " . "Dates";
+            break;
+        case 5:
+            $id = $id . " with " . "Elderberries";
+            break;
+        case 6:
+            $id = $id . " with " . "Figs";
+            break;
+        case 7:
+            $id = $id . " with " . "Grapes";
+            break;
+        case 8:
+            $id = $id . " with " . "Honeydew";
+            break;
+        case 9:
+            $id = $id . " with " . "Inga";
+            break;
+        case 10:
+            $id = $id . " with " . "Jackfruit";
+            break;
+        case 11:
+            $id = $id . " with " . "Kumquats";
+            break;
+        case 12:
+            $id = $id . " with " . "Lemons";
+            break;
+        case 13:
+            $id = $id . " with " . "Mangoes";
+            break;
+        case 14:
+            $id = $id . " with " . "Nectarines";
+            break;
+        case 15:
+            $id = $id . " with " . "Oranges";
+            break;
+        case 16:
+            $id = $id . " with " . "Papayas";
+            break;
+        case 17:
+            $id = $id . " with " . "Quinces";
+            break;
+        case 18:
+            $id = $id . " with " . "Raspberries";
+            break;
+        case 19:
+            $id = $id . " with " . "Strawberries";
+            break;
+        case 20:
+            $id = $id . " with " . "Tangerines";
+            break;
+        case 21:
+            $id = $id . " with " . "Ugni";
+            break;
+        case 22:
+            $id = $id . " with " . "Vanilla";
+            break;
+        case 23:
+            $id = $id . " with " . "Watermelon";
+            break;
+        case 24:
+            $id = $id . " with " . "Ximenia";
+            break;
+        case 25:
+            $id = $id . " with " . "Yangmei";
+            break;
+        case 26:
+            $id = $id . " with " . "Zucchini";
+            break;
+    } //switch
+  } //if
+
+    
+    // prepend color
+    // 3 words: color animal with fruit 26*676 = 17,576
+  if $len > 676 { 
+
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Amber" . " " . $id;
+            break;
+        case 2:
+            $id = "Blue" . " " . $id;
+                break;         
+        case 3:
+            $id = "Celadon" . " " . $id;
+            break;
+        case 4:
+            $id = "Damask" . " " . $id;
+            break;
+        case 5:
+            $id = "Ecru" . " " . $id;
+            break;
+        case 6:
+            $id = "Fuchsia" . " " . $id;
+            break;
+        case 7:
+            $id = "Grey" . " " . $id;
+            break;
+        case 8:
+            $id = "Heliotrope" . " " . $id;
+            break;
+        case 9:
+            $id = "Indigo" . " " . $id;
+            break;
+        case 10:
+            $id = "Jade" . " " . $id;
+            break;
+        case 11:
+            $id = "Khaki" . " " . $id;
+            break;
+        case 12:
+            $id = "Lavender" . " " . $id;
+            break;
+        case 13:
+            $id = "Maroon" . " " . $id;
+            break;
+        case 14:
+            $id = "Navy" . " " . $id;
+            break;
+        case 15:
+            $id = "Ochre" . " " . $id;
+            break;
+        case 16:
+            $id = "Platinum" . " " . $id;
+            break;
+        case 17:
+            $id = "Quartz" . " " . $id;
+            break;
+        case 18:
+            $id = "Ruby" . " " . $id;
+            break;
+        case 19:
+            $id = "Saffron" . " " . $id;
+            break;
+        case 20:
+            $id = "Teal" . " " . $id;
+            break;
+        case 21:
+            $id = "Ultraviolet" . " " . $id;
+            break;
+        case 22:
+            $id = "Violet" . " " . $id;
+            break;
+        case 23:
+            $id = "White" . " " . $id;
+            break;
+        case 24:
+            $id = "Xanthic" . " " . $id;
+            break;
+        case 25:
+            $id = "Yellow" . " " . $id;
+            break;
+        case 26:
+            $id = "Zaffre" . " " . $id;
+            break;
+    } //switch
+  } // if
+
+    
+    // prepend adjective
+    // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
+  if $len > 17576 { 
+
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Able" . " " . $id;
+            break;
+        case 2:
+            $id = "Brainy" . " " . $id;
+                break;         
+        case 3:
+            $id = "Cheerful" . " " . $id;
+            break;
+        case 4:
+            $id = "Diligent" . " " . $id;
+            break;
+        case 5:
+            $id = "Eccentric" . " " . $id;
+            break;
+        case 6:
+            $id = "Fiery" . " " . $id;
+            break;
+        case 7:
+            $id = "Gallant" . " " . $id;
+            break;
+        case 8:
+            $id = "Humble" . " " . $id;
+            break;
+        case 9:
+            $id = "Idyllic" . " " . $id;
+            break;
+        case 10:
+            $id = "Jovial" . " " . $id;
+            break;
+        case 11:
+            $id = "Kinetic" . " " . $id;
+            break;
+        case 12:
+            $id = "Lithe" . " " . $id;
+            break;
+        case 13:
+            $id = "Mellow" . " " . $id;
+            break;
+        case 14:
+            $id = "Nimble" . " " . $id;
+            break;
+        case 15:
+            $id = "Orderly" . " " . $id;
+            break;
+        case 16:
+            $id = "Poetic" . " " . $id;
+            break;
+        case 17:
+            $id = "Quirky" . " " . $id;
+            break;
+        case 18:
+            $id = "Radical" . " " . $id;
+            break;
+        case 19:
+            $id = "Shiny" . " " . $id;
+            break;
+        case 20:
+            $id = "Thrifty" . " " . $id;
+            break;
+        case 21:
+            $id = "Ultimate" . " " . $id;
+            break;
+        case 22:
+            $id = "Vibrant" . " " . $id;
+            break;
+        case 23:
+            $id = "Winsome" . " " . $id;
+            break;
+        case 24:
+            $id = "Xeric" . " " . $id;
+            break;
+        case 25:
+            $id = "Yogic" . " " . $id;
+            break;
+        case 26:
+            $id = "Zesty" . " " . $id;
+            break;
+    } //switch
+  }// if
+
+
+    // prepend verb
+    // 5 words: verb, adjective, color, animal with fruit 26*456976 = 11,881,376
+  if $len > 456976 { 
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Activating" . " " . $id;
+            break;
+        case 2:
+            $id = "Blending" . " " . $id;
+                break;         
+        case 3:
+            $id = "Creating" . " " . $id;
+            break;
+        case 4:
+            $id = "Developing" . " " . $id;
+            break;
+        case 5:
+            $id = "Educating" . " " . $id;
+            break;
+        case 6:
+            $id = "Forming" . " " . $id;
+            break;
+        case 7:
+            $id = "Grouping" . " " . $id;
+            break;
+        case 8:
+            $id = "Honoring" . " " . $id;
+            break;
+        case 9:
+            $id = "Instantiating" . " " . $id;
+            break;
+        case 10:
+            $id = "Joining" . " " . $id;
+            break;
+        case 11:
+            $id = "Kindling" . " " . $id;
+            break;
+        case 12:
+            $id = "Lassoing" . " " . $id;
+            break;
+        case 13:
+            $id = "Moderating" . " " . $id;
+            break;
+        case 14:
+            $id = "Naming" . " " . $id;
+            break;
+        case 15:
+            $id = "Ordering" . " " . $id;
+            break;
+        case 16:
+            $id = "Pacifying" . " " . $id;
+            break;
+        case 17:
+            $id = "Qualifying" . " " . $id;
+            break;
+        case 18:
+            $id = "Renewing" . " " . $id;
+            break;
+        case 19:
+            $id = "Sampling" . " " . $id;
+            break;
+        case 20:
+            $id = "Teaching" . " " . $id;
+            break;
+        case 21:
+            $id = "Understanding" . " " . $id;
+            break;
+        case 22:
+            $id = "Verifying" . " " . $id;
+            break;
+        case 23:
+            $id = "Winning" . " " . $id;
+            break;
+        case 24:
+            $id = "Xenografting" . " " . $id;
+            break;
+        case 25:
+            $id = "Yoking" . " " . $id;
+            break;
+        case 26:
+            $id = "Zeroing" . " " . $id;
+            break;
+    } //switch
+  } //if
+
+    
+    // 6 words: adverb, verb, adjective, color, animal with fruit 26*11881376 = 308,915,776
+  if $len > 11881376 { 
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Absolutely" . " " . $id;
+            break;
+        case 2:
+            $id = "Brilliantly" . " " . $id;
+                break;         
+        case 3:
+            $id = "Charismatically" . " " . $id;
+            break;
+        case 4:
+            $id = "Deeply" . " " . $id;
+            break;
+        case 5:
+            $id = "Excellently" . " " . $id;
+            break;
+        case 6:
+            $id = "Fabulously" . " " . $id;
+            break;
+        case 7:
+            $id = "Graphically" . " " . $id;
+            break;
+        case 8:
+            $id = "Honestly" . " " . $id;
+            break;
+        case 9:
+            $id = "Intently" . " " . $id;
+            break;
+        case 10:
+            $id = "Justly" . " " . $id;
+            break;
+        case 11:
+            $id = "Keenly" . " " . $id;
+            break;
+        case 12:
+            $id = "Legitimately" . " " . $id;
+            break;
+        case 13:
+            $id = "Mostly" . " " . $id;
+            break;
+        case 14:
+            $id = "Nearly" . " " . $id;
+            break;
+        case 15:
+            $id = "Oddly" . " " . $id;
+            break;
+        case 16:
+            $id = "Perfectly" . " " . $id;
+            break;
+        case 17:
+            $id = "Quaintly" . " " . $id;
+            break;
+        case 18:
+            $id = "Really" . " " . $id;
+            break;
+        case 19:
+            $id = "Sharply" . " " . $id;
+            break;
+        case 20:
+            $id = "Truly" . " " . $id;
+            break;
+        case 21:
+            $id = "Utterly" . " " . $id;
+            break;
+        case 22:
+            $id = "Very" . " " . $id;
+            break;
+        case 23:
+            $id = "Wholly" . " " . $id;
+            break;
+        case 24:
+            $id = "Xtremely" . " " . $id;
+            break;
+        case 25:
+            $id = "Yearly" . " " . $id;
+            break;
+        case 26:
+            $id = "Zealously" . " " . $id;
+            break;
+    } //switch
+  } //if
+
+    
+    // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
+  if $len > 308915776 {
+      $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = $id . " and " . "Artichokes";
+            break;
+        case 2:
+            $id =  $id . " and " . "Beets";
+                break;         
+        case 3:
+            $id =  $id . " and " . "Celery";
+            break;
+        case 4:
+            $id =  $id . " and " . "Daikon";
+            break;
+        case 5:
+            $id =  $id . " and " . "Egplant";
+            break;
+        case 6:
+            $id =  $id . " and " . "Fennel";
+            break;
+        case 7:
+            $id =  $id . " and " . "Garlic";
+            break;
+        case 8:
+            $id =  $id . " and " . "Horseradish";
+            break;
+        case 9:
+            $id =  $id . " and " . "Ivy";
+            break;
+        case 10:
+            $id =  $id . " and " . "Jícama";
+            break;
+        case 11:
+            $id =  $id . " and " . "Kale";
+            break;
+        case 12:
+            $id =  $id . " and " . "Lettuce";
+            break;
+        case 13:
+            $id =  $id . " and " . "Mustard";
+            break;
+        case 14:
+            $id =  $id . " and " . "Napa";
+            break;
+        case 15:
+            $id =  $id . " and " . "Okra";
+            break;
+        case 16:
+            $id =  $id . " and " . "Parsnip";
+            break;
+        case 17:
+            $id =  $id . " and " . "Quandong";
+            break;
+        case 18:
+            $id =  $id . " and " . "Radicchio";
+            break;
+        case 19:
+            $id =  $id . " and " . "Shallots";
+            break;
+        case 20:
+            $id =  $id . " and " . "Turnips";
+            break;
+        case 21:
+            $id =  $id . " and " . "Ulluco";
+            break;
+        case 22:
+            $id =  $id . " and " . "Vegetables";
+            break;
+        case 23:
+            $id =  $id . " and " . "Watercress";
+            break;
+        case 24:
+            $id =  $id . " and " . "Xocolatl";
+            break;
+        case 25:
+            $id =  $id . " and " . "Yams";
+            break;
+        case 26:
+            $id =  $id . " and " . "Ziti";
+            break;
+    } //case
+  } //if
+
+
+    // add modulus (as string) to end of string if there is anything left
+  if $len > 8031810176 {
+      $id = $id . " " . strval($len-8031810176);
+  } // if
+
+     } while (array_search($id, $usedids) !== false);
 
     $usedids[] = $id;
 
