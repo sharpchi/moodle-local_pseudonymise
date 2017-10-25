@@ -664,19 +664,721 @@ function assign_random_id() {
     return $id;
 }
 
-function assign_pseudo_id() {
-
+for ($i = 1; $i <=100; $i++) {
+		$j = floor(pow(1.26,$i));
+		$pseudoid = assign_pseudo_id($j);
+		//print "$i th string using size of $j is $pseudoid\n";
+		print "$pseudoid\n";
+}
+function assign_pseudo_id($len) {
     // rather than just assigning a random string of junk,
-    // this algorithm assembles a phrase string consisting of serialized words in base 26
+    // this algorithm assembles a phrase string consisting of randomized strings categorized by type
+    // accept a length parameter to determine how long the phrase needs to be for uniqueness
     // Keep track of used IDs during the running of the script.
     static $usedpseudoids = array();
+    $prefixlist = explode(",", "Introduction to,Introductory,Junior,Intermediate,Elementary,Applied,General,Freshman,Senior,Integrated,Special,Independent Study in,Thesis in,Advanced,Fundamentals of,Topics in,Internship in,Seminar in,Colloquium in,Exploring,Teaching,Foundations of,Investigating,Condensed,Beginnings of,Studies in,Peer-Led");
+    $adjlist = explode(",","Abnormal,Abstract,Academic,Acquired,Active,Acute,Advanced,Aerial,Algebraic,Analytical,Ancient,Anthropological,Apocalyptic,Applied,Aquatic,Aqueous,Archaeological,Archaic,Architectural,Arctic,Artificial,Artist's,Artistic,Assisted,Assistive,Athenian,Athletic,Atlantic,Auditory,Aural,Bad,Baroque,Basic,Behavioral,Biochemical,Bioenvironmental,Biological,Biomechanical,Biomedical,Brave,Broken,Buried,Canine,Cardiac,Cardiopulmonary,Cellular,Changing,Chemical,Children's,Choral,Chronic,Civic,Civil,Classical,Client-Side,Clinical,Coastal,Cognitive,Collaborative,Collective,Collegiate,Commercial,Communicative,Community-Based,Commutative,Comparative,Complex,Composite,Computational,Concrete,Condensed,Contemporary,Context,Controlled,Controversial,Conversational,Coolest,Cooperative,Core,Corporate,Creative,Criminological,Critical,Crop,Cross-Cultural,Cruel,Culinary,Cultural,Current,Daily,Dairy,Delinquent,Derivative,Developmental,Dietetic,Differential,Digital,Disabled,Discrete,Disruptive,Distributed,Do-It-Yourself,Domestic,Dystopian,Earliest,Early,East,Eastern,Ecological,Economic,Ecosystem,Educational,Eighteenth-Century,Electric,Electrical,Electrochemical,Electromagnetic,Electromechanical,Electronic,Elementary,Embedded,Endangered,Entrepreneurial,Environmental,Epic,Equine,Ergogenic,Estuarine,Ethical,Ethnic,Ethnographic,Eukaryotic,European,Evolutionary,Exceptional,Experimental,Extreme,Famous,Federal,Financial,Finite,Floral,Floricultural,Foreign,Forensic,Formal,Functional,Fundamental,Fungal,Gender-Based,Gendered,General,Genetic,Geo-Environmental,Geographic,Geological,Geotechnical,Geriatric,Glacial,Global,Golden,Good,Gothic,Governmental,Graded,Grand,Graphic,Great,Green,Growing,Happy,Hazardous,Healthy,Hellenic,Hellenistic,Herbaceous,High,High-Performance,High-Tech,Hispanic,Historic,Historical,Horticultural,Igneous,Inclusive,Independent,Indigenous,Individual,Industrial,Infectious,Inorganic,Institutional,Instrumental,Integrated,Integrating,Intellectual,Interactive,Interdisciplinary,Internal,International,Interpersonal,Invasive,Invertebrate,Investigative,Juvenile,Large,Later,Legal,Linear,Linguistic,Literary,Local,Long,Lost,Macroeconomic,Major,Mammalian,Managerial,Marine,Mass,Material,Maternal,Mathematical,Mechanical,Medical,Medieval,Mediterranean,Mental,Mesoamerican,Metamorphic,Methodological,Microbial,Microeconomic,Microscopic,Mock,Model,Modern,Molecular,Monetary,Multicultural,Multidimensional,Multidisciplinary,Multilingual,Multinational,Musculoskeletal,Musical,Mystic,Napoleonic,National,Native,Natural,Naval,Near,Networked,New,Nineteenth-Century,Non-Profit,Non-Western,Nonlinear,Nonprofit,North,Northeast,Northern,Nuclear,Nucleic,Numerical,Nutritional,Object-Oriented,Occupational,Ocean,Old,Older,One-Dimensional,Open,Organic,Organizational,Oriented,Ornamental,Outdoor,Parallel,Park,Past,Pathogenic,Pathologic,Period,Periodic,Personal,Physical,Physiological,Piano,Poisonous,Political,Pond-Less,Pop,Popular,Positive,Postcolonial,Pre-Colonial,Pre-Modern,Pre-Practicum,Pre-Stressed,Preceptorial,Predicitve,Prehospital,Prenatal,Present,Pressurized,Primary,Principle,Private,Problem,Process,Professional,Programmable,Prokaryotic,Psychological,Psychosocial,Public,Quantitative,Quantum,Rain,Random,Real,Recreational,Regional,Reinforced,Related,Remote,Renewable,Residential,Restaurant,Rhetorical,Right,Roman,Romanesque,Romantic,Rural,Scenic,Scientific,Second,Secondary,Selected,Semantic,Sensory,Small,Smart,Social,Societal,Sociological,Solar,Solid,Special,Spectroscopic,Spring,Stagewise,State,Statistical,Strategic,Stressed,Structural,Sub-Saharan,Supervised,Supreme,Surgical,Sustainable,Symphonic,Technical,Technological,Technology-Related,Terrestrial,Theatrical,Therapeutic,Thermal,Third,Top,Torn,Tropical,Tudor,Twentieth,Twentieth-Century,Ubiquitous,Ugly,Uniform,United,Unusual,Urban,Vertebrate,Veterinary,Victorian,Virtual,Visual,Vocal,Water-Borne,Western,Winter,Woody,Workshop,World,Young");
+    $subjectlist = explode(",","Analysis,Analytics,Anatomy,Anesthesia,Animals,Anthropology,Aquaculture,Arabic,Arboriculture,Archaeology,Architecture,Art,Aspects,Asphalt,Astronomy,Astrophysics,Athletics,Attention,Audiology,Autism,Avatars,Babies,Bacteriology,Baking,Ballet,Band,Banking,Barbarians,Bards,Basketball,Beaches,Behavior,Behaviorism,Being,Biochemistry,Biodiversity,Bioengineering,Biogeochemistry,Biogeography,Bioinformatics,Biology,Biomaterials,Biomechanics,Bionics,Biostatistics,Biotech,Biotechnology,Botany,Bureaucracy,Business,Calculus,Camelids,Canoeing,Capital,Capitalism,Careers,Catering,Centuries,Ceramics,Change,Channel,Chaos,Characters,Chaucer,Chekhov,Chemistry,Childhood,Children,Chinese,Choreography,Cinema,Circuits,Cities,Citizenship,Civilization,Climate,Climbing,Coasts,Cognition,Combinatorics,Combustion,Comedy,Communication,Communications,Communities,Community,Competency,Competition,Compiler,Compocinema,Composition,Computation,Computers,Computing,Concepts,Concert,Condition,Conditions,Conflicts,Conformation,Congress,Conquest,Consciousness,Conservation,Constitution,Construction,Consulting,Consumer/Buyer,Contemporaries,Contexts,Contracting,Control,Controversy,Convention,Conversation,Corrosion,Cosmology,Costume,Counseling,Counterpoint,Counterterrorism,Course,Courses,Courts,Creativity,Crime,Criminology,Criticism,Crusades,Cuisine,Culture,Cultures,Curriculum,Cyberculture,Cyborgs,Dali,Dancers,Darkroom,Data,Database,Deaf,Death,Decision,Decisions,Dehumanization,Deities,Delineation,Delinquency,Democracies,Democracy,Democrats,Demography,Dendrology,Descartes,Designs,Development,Devils,Diagnostics,Dialects,Dialogue,Dictators,Diction,Diet,Dietetics,Diffraction,Dining,Diplomacy,Dirt,Disabilities,Disability,Discoveries,Discovery,Disease,Diseases,Disorders,Display,Dissent,Diversity,Diving,DNA,Documentation,Dogs,Draft,Dragons,Drama,Dramatics,Drawing,Dreaming,Dreams,Dressage,Drug,Drugs,Drum,Dying,Dynamics,Dysfunction,E-Business,Ear,Earthquakes,Ecogastronomy,Ecohydrology,Ecology,Econometrics,Economics,Ecosystems,Ecotourism,Education,Educators,Electricity,Electrocardiography,Emergencies,Emigration,Empires,Employment,Endocrinology,Energy,Engineering,Engines,English,Enlightenment,Enrollment,Enterprises,Entomology,Entrepreneurship,Environment,Environments,Epidemics,Epidemiology,Epistemology,Equality,Equations,Equipment,Equity/Venture,Espionage,Estate,Ethics,Ethnicity,Euphonium,Europe,Evaluation,Event,Evolution,Exceptionalities,Exceptionality,Exercise,Existentialism,Experiment,Expository,Extinction,Eye,Eyes,Facilitation,Facilities,Facility,Families,Family,Farm,Fate,Fatigue,Faulting,Feature,Features,Feminism,Feminist,Feminists,Festival,Fiber,Fiction,Fields,Film,Finance,Fire,Fish,Fisheries,Fishes,Fishing,Fitness,Flow,Flower,Fluid,Fluids,Flute,Folklife,Folklore,Food,Football,Forage,Forecasting,Forensics,Forestland,Forestry,Fort,Fossil,Fossils,Foundation,Foundations,Fracture,Framing,France,Franchising,Francophone,Frankenstein,Freedom,French,Frog,Fruit,Fuels,Function,Functions,Fund,Fundraising,Game,Games,Garden,Gauguin,Gender,Genes,Genetics,Genius,Genomics,Genres,Geochemistry,Geodesy,Geodynamics,Geography,Geology,Geometry,Geophysics,Geotectonics,Germ,Germs,Globalization,Goggles,Government,Grammar,Grant,Grantsmanship,Graphics,Grassland,Greek,Greenhouse,Grounds,Groundwater,Guilt,Guitar,Gymnastics,Habitat,Habitats,Happiness,Harassment,Hardware,Hazards,Headlines,Healing,Health,Heat,Hematology,Herbs,Herd,Heretics,Hertiage,Histology,Historians,Histories,Historiography,History,Hittite,Hockey,Home,Homer,Homicide,Horsemanship,Horses,Hospitality,Houses,Humanities,Humanity,Hungarian,Hydrodynamics,Hydrology,Ichthyology,Ideas,Identification,Identities,Ideology,Immersion,Immigration,Immunohematology,Immunology,Inclusion,Income,Indian,Individuals,Industry,Inequality,Infancy,Inference,Information,Infrastructure,Injuries,Innovation,Insects,Institutions,Instruction,Instrumentation,Instruments,Intaglio,Intelligence,Interaction,Interactions,Interest,Interpretation,Intervention,Interventions,Inventory,Invertebrates,Investment,Investments,Irish,Irrigation,Isotope,Italian,Japanese,Jazz,Journal,Journalism,Judgment,Justice,Kant,Kayaking,Kinesiology,Kinetics,King,Kingdom,Labor,Landforms,Landscape,Language,Languages,Latin,Law,Leadership,Learners,Learning,Lectures,Leisure,Leonardo,Liberties,Liberty,Life,Lifespan,Lighting,Linearity,Linguistics,Literacy,Literature,Literatures,Lithography,Lives,Livestock,Lodging,Logging,Logic,Loss,Madness,Magnetism,Maintenance,Makeover,Makeup,Mammalogy,Management,Manufacturing,Marching,Marketing,Markets,Masonry,Masterpieces,Materials,Mathematics,Matter,Meaning,Measurement,Measurements,Mechanics,Mechanisms,Mechanization,Media,Mediation,Medicine,Mentoring,Metabolism,Metallurgy,Metaphysics,Microbes,Microbiology,Microfluidics,Micronutrients,Microprocessors,Microscopy,Mildews,Milton,Mind,Mine,Mineralogy,Mining,Modalities,Models,Modernism,Modernization,Molds,Molecules,Mona Lisa,Money,Mood,Morality,Morphology,Motherhood,Movement,Mozart,Museum,Mushrooms,Music,Mycology,Myth,Mythology,Nanoscience,Nature,Navigation,Neotropics,Networks,Neurobiology,Neurology,Neuroscience,News,Nonfiction,Norms,Novel,Number,Nursing,Nutrition,Obesity,Occupation,Occupations,Oceanography,Opera,Operation,Operations,Opinion,Opportunities,Opportunity,Optics,Orchestration,Order,Organization,Organizations,Origins,Ornithology,Oxen,Oxygen,Painting,Paleoclimatology,Paleontology,Paradise,Parasites,Parasitology,Parenting,Participation,Parties,Pastry,Pathologies,Pathology,Paths,Pathways,Pavement,Peace,Pedagogy,People,Peoples,Perception,Percussion,Performance,Periodicals,Periods,Persistence,Personality,Persons,Perspective,Perspectives,Persuasion,Persuasive,Pet,Petrology,Pharmacology,Philosophies,Philosophy,Phlebotomy,Phonetics,Phonology,Photography,Physics,Physiology,Pioneers,Pirates,Place,Plants,Playwriting,Poetry,Pointe,Policies,Policy,Politics,Pollution,Population,Populations,Portuguese,Post-Modernism,Pots,Poultry,Poverty,Power,Powers,Prevention,Pricing,Primates,Printmaking,Privilege,Probability,Problems,Processes,Production,Products,Professions,Profits,Programs,Projects,Promotion,Proof,Propaganda,Propagation,Properties,Prose,Protection,Proteomics,Protest,Psychobiology,Psychology,Puppetry,Pursuits,Reading,Reason,Reasoning,Rebellion,Recreation,Reform,Region,Regression,Regulation,Regulations,Rehabilitation,Relations,Relationships,Relativity,Republics,Rescue,Research,Researchers,Resiliency,Resources,Responses,Responsibility,Revenue,Revolution,Revolutions,Rhetorics,Riding,Rights,Risk,Risks,Ritual,Roads,Robots,Roles,Romance,Romanticism,Roots,Rounds,Ruminants,Russian,Safety,Sales,Sanitation,Sanskrit,Schools,Scientists,Seamanship,Securities,Sedimentology,Selection,Sensation,Sense,Sensibility,Separation,Serology,Services,Settings,Shakespeare,Signals,Silviculture,Singers,Skills,Societies,Society,Sociolinguistics,Sociology,Software,Soils,Solids,Solutions,Sources,Spanish,Species,Specifications,Spectacle,Speeches,Sports,Stagecraft,States,Statistics,Status,Stereotypes,Stories,Story,Storytelling,Strategy,Strength,Stress,Structure,Structures,Struggle,Students,Supplements,Support,Surveying,Survival,Sustainability,Symmetry,Syntax,Systems,Talk,Tasks,Taste,Taxes,Teachers,Teamwork,Technicians,Techniques,Technologies,Tests,Texts,Themes,Theories,Theory,Therapies,Therapy,Thermodynamics,Thinking,Thought,Tides,Time,Times,Tissue,Tools,Topics,Topology,Tourism,Toxicology,Traditions,Tragedy,Translation,Transmission,Transportation,Travel,Treatment,Trees,Trials,Tropics,Truths,Urbanization,Use,Uses,Utopia,Values,Verification,Vertebrates,Vibration,Violence,Virology,Visions,Visualization,Voices,Volcanology,Volunteers,Voters,Waves,Ways,Wealth,Weather,Weight,Welding,Welfare,Well-Being,Wellness,Wetlands,Wine,Furniture,Woodworking,Work,Workshops,Worlds,Writers,Youth,Zoology" );
+    $modlist = explode(",", "Instrumental Methods of,Properties and Production of,Design of,Behavior of,Dynamics of,Ethics of,Theory of,Evaluation of,Interactive,History of,Philosophy of,Principles of,Applications of,Analysis of,Mechanics of,Persuasion in,Psychology of");
+    $modnounlist = explode(",","Action,Adventure,Air,Angle,Animal,Asset,Backcountry,Bass,Bassoon,Beverage,Blood,Brain,Brass,Bridge,Camp,Cancer,Care,Career,Catastrophe,Cattle,Cell,Chamber,Character,Child,Choir,Clarinet,Club,Combat,Community,Computer,Conflict,Content,Cooking,Cost,Court,Courtroom,Criminal,Cycle,Dance,Earth,Earthquake,Economy,Electron,Element,Emergency,Empire,Ensemble,Forest,Freshman,Freshwater,Future,Horn,Horse,Host-Microbe,Human,Human-Computer,Human-Environment,Human/Animal,Ice,Idea,Identity,Illness,Image,Injury,Internet,Lake,Land,Lifetime,Lobster,Locavore,Machine,Mammal,Market,Matrix,Microbiome,Microcomputer,Military,Motor,Multimedia,Nation,Network,Newt,Oboe,Pest,Plague,Planet,Plant,Plant-Animal,Plant-Microbe,Plasma,Play,Police,Pollock,Prescription,Presidency,Product,Profession,Protein,Quality,Quantity,Renaissance,Republic,Resort,Resource,Responder,Resume,Reward,Rock,Room,Rope,Ruminant,Satellite,Saxophone,Scene,School,Scuba,Sculpture,Sea,Security,Seed,Self,Service,Shop,Sign,Signal,Silver,Soil,Song,Soprano,Space,Spectrum,Speech,Sport,Spreadsheet,Stage,Steel,Stormwater,Stream,String,Summer,Swine,Symphony,System,Table,Tax,Teacher,Team,Technician,Technology,Theatre,Timber,Toe,Tour,Track,Transport,Tree,Trial,Trombone,Trumpet,Tuba,Turf,Underwater,University,Value,Vegetable,Video,Viola,Violin,Violoncello,Voice,Waste,Water,Watershed,Web,Weekend,Wetland,Wilderness,Wildlife,Wind,Woodwind,Worker,Workplace");
+    $postfixlist = explode (",","Abundance,Acquisition,Administration,Advocacy,Affairs,Analysis,Application,Applications,Approach,Approaches,Argumentation,Articulation,Arts,Assessment,Assurance,Audiences,Auditing,Authors,Awareness,Based,Basis,Baseline,Case,Century,Challenge,Classroom,Continuing,Country,Creation,Description,Design,Directed,Emergence,Enhancing,Evolution,Examination,Examining,Excursions,Execution,Expedition,Experience,Experiences,Experiments,Exploration,Explorations,Exploring,Factors,Field,Fieldwork,Formulating,Fundamentals,Impact,Improvement,Insights,Installation,Integration,Investigations,Involvement,Issues,Lab,Laboratory,Lecture,Method,Methodology,Methods,Misconceptions,Misuse,Mitigation,Mixtures,Moving,Myths,Needs,Observation,Paradigm,Paradigms,Peopling,Practical,Practice,Practices,Practicum,Preparation,Principles,Program,Pursuit,Readings,Restoration,Review,Science,Sciences,Simulation,Speakers,Statement,Views,Works");
+    $levellist = explode(",","I,II,III,IV");
+    $gerundlist = explode(",", "Abstracting,Accepting,Adopting,Analyzing,Applying,Approaching,Attending to,Attributing,Balancing,Becoming Aware of,Budgeting,Building,Calssifying,Carlifying,Carrying out,Categorizing,Characterizing,Checking,Coaching,Committing to,Comparing,Computing,Conceptualizing,Concluding,Conducting,Constructing,Constructing models,Contrasting,Coordinating,Creating,Critiquing,Deconstructing,Designing,Detecting,Developing,Differentiating,Directing,Discriminating,Distinguishing,Editing,Educating,Enabling,Evaluating,Executing,Exemplifying,Explaining,Extrapolating,Finding Coherence,Focusing,Generalizing,Generating,Handling,Harvesting,Hearing,Hypothesizing,Identifying,Illustrating,Imaging,Implementing,Inferring,Instantiating,Integrating,Interpolating,Interpreting,Investigating,Judging,Living,Making,Managing,Mapping,Marketing,Matching,Modeling,Monitoring,Opening,Operating,Organizing,Outlining,Paraphrasing,Parsing,Planning,Positioning,Predicting,Preferring,Processing,Producing,Programming,Pruning,Recalling,Recognizing,Reflecting,Remaking,Remembering,Rendering,Reporting,Representing,Resolving,Responding,Responding to,Retrieving,Sampling,Scripting,Selecting,Sensing,Structuring,Subsuming,Summarizing,Supervising,Supporting,Sustaining,Taking,Teaching,Testing,Thinking,Threading,Training,Transforming,Translating,Tutoring,Understanding,Using,Valuing,Winning,Writing");
+    $majorlist = explode(",","Engineering and Physical Science,Bioengineering,Chemical Engineering,Chemistry,Civil Engineering,Computer Science,Earth Science,Electrical and Computer Engineering,Environmental Engineering,Information Technology,Integrated Applied Mathematics,Materials Science,Mathematics and Statistics,Mechanical Engineering,Ocean Engineering,Physics,Technology,Liberal Arts,Anthropology,Arabic,Art and Art History,Chinese,Classics,Communication,Education,English,French,Geography,German,Greek,History,Humanities,Italian Studies,Japanese,Justice Studies,Latin,Linguistics,Music,Music Education,Philosophy,Political Science,Portuguese,Psychology,Russian,Sociology,Spanish,Theatre and Dance,Life Sciences and Agriculture,Animal Science,Biochemistry,Molecular and Cellular Biology,Biology,Biomedical Science,Community and Environmental Planning,Environmental and Resource Economics,Environmental Conservation and Sustainability,Environmental Science,Equine Studies,Forestry,Genetics,Life Sciences and Agriculture,Marine Biology,Natural Resources,Neuroscience and Behavior,Nutrition,Sustainable Agriculture and Food Systems,Tourism,Wildlife and Conservation Biology,Zoology,Health and Human Services,Athletic Training,Communication Sciences and Disorders,Health Management and Policy,Human Development and Family Studies,Kinesiology,Nursing,Occupational Therapy,Recreation Management and Policy,Social Work,Applied Science,Agricultural Mechanization,Applied Animal Science,Applied Business Management,Civil Technology,Community Leadership,Culinary Arts and Nutrition,Forest Technology,Horticultural Technology,Integrated Agriculture Management,Veterinary Technology,Business and Economics,Accounting and Finance,Business Administration,Decision Science,Ecogastronomy,Economics,Hospitality Management,Management,Marketing");
 
-    do {
-        $id = rand(1, PHP_INT_MAX);
-    } while (array_search($id, $usedids) !== false);
+    
+    $maxcount = 1;
+     do {
+    
+     
+     $id = $subjectlist[rand(0,count($subjectlist)-1)];
+     $maxcount = $maxcount * count($subjectlist);
+     
+     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     //insert adjective
+     $id = $modnounlist[rand(0,count($modnounlist)-1)] . " " . $id;
+     		 $maxcount =  $maxcount * count($modnounlist);
+     }
 
-    $usedids[] = $id;
+     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     //insert adjective
+     $id = $adjlist[rand(0,count($adjlist)-1)] . " " . $id;
+     		 $maxcount =  $maxcount * count($adjlist);
+     }
 
+     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     		 // prepend modifier
+    //$id = $modlist[rand(0,count($modlist))];
+     $id = $modlist[rand(0,count($modlist)-1)] . " " . $id;
+    		 $maxcount =  $maxcount * count($modlist);
+     }
+
+     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     // prepend level prefix
+      $id = $prefixlist[rand(0,count($prefixlist)-1)] . " " . $id;
+    		 $maxcount =  $maxcount * count($prefixlist);
+     }
+    
+     
+     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     		 // combo courses
+     		 $id = $id . " and " . $subjectlist[rand(0,count($subjectlist)-1)];
+     		 $maxcount =  $maxcount * count($subjectlist);
+     }
+     
+     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     //posftix
+       $id = $id  . " " . $postfixlist[rand(0,count($postfixlist)-1)];
+     		 $maxcount =  $maxcount * count($postfixlist);
+     }
+          
+/*     if (rand(0,1)>(($len - $maxcount)/$len)*100000000000000000) {
+     		 // for subject majors
+     		 $id = $id  . " for " . $majorlist[rand(0,count($majorlist)-1)] . " Majors";
+     		 $maxcount =  $maxcount * count($majorlist);
+     }
+ */    
+     if (rand(0,1)>(($len - $maxcount)/$len)*100000) {
+    //level I II III IV
+       $id = $id  . " " . $levellist[rand(0,count($levellist)-1)];
+     		 $maxcount =  $maxcount * count($levellist);
+     }
+     if (rand(0,1)>(($len - $maxcount)/$len)) {
+     // prepend gerund
+      $id = $gerundlist[rand(0,count($gerundlist)-1)] . " " . $id;
+    		 $maxcount =  $maxcount * count($gerundlist);
+     }
+
+          
+ 
+    // add modulus (as string) to end of string if there is anything left
+  if ($len > $maxcount) {
+      $id = $id . " " . substr(strval($len-$maxcount),-3);
+  } // if
+     } while (array_search($id, $usedpseudoids) !== false);
+    $usedpseudoids[] = $id;
+    return $id;
+}
+
+function assign_serial_pseudo_id($len) {
+    // rather than just assigning a random string of junk,
+    // this algorithm assembles a phrase string consisting of serialized words in base 26
+    // accept a length parameter to determine how long the phrase needs to be for uniqueness
+    // 1 word: animal 26 possibilities
+    // 2 words: animal with fruit 26*26 = 676
+    // 3 words: color animal with fruit 26*676 = 17,576
+    // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
+    // 5 words: verb, adjective, color, animal with fruit 26*456976 = 11,881,376
+    // 6 words: adverb, verb, adjective, color, animal with fruit 26*11881376 = 308,915,776
+    // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
+    // if > 7, add a number at the end of the string containing modulus
+    // Keep track of used IDs during the running of the script.
+    static $usedpseudoids = array();
+     do {
+    
+    // pick animal//
+    // 1 word: animal 26 possibilities
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Armadillos";
+            break;
+        case 2:
+            $id = "Buffaloes";
+                break;         
+        case 3:
+            $id = "Cats";
+            break;
+        case 4:
+            $id = "Dogs";
+            break;
+        case 5:
+            $id = "Elephants";
+            break;
+        case 6:
+            $id = "Foxes";
+            break;
+        case 7:
+            $id = "Giraffes";
+            break;
+        case 8:
+            $id = "Horses";
+            break;
+        case 9:
+            $id = "Iguanas";
+            break;
+        case 10:
+            $id = "Jaguars";
+            break;
+        case 11:
+            $id = "Koalas";
+            break;
+        case 12:
+            $id = "Leopards";
+            break;
+        case 13:
+            $id = "Monkeys";
+            break;
+        case 14:
+            $id = "Nightingales";
+            break;
+        case 15:
+            $id = "Ostriches";
+            break;
+        case 16:
+            $id = "Penguins";
+            break;
+        case 17:
+            $id = "Quails";
+            break;
+        case 18:
+            $id = "Rhinoceros";
+            break;
+        case 19:
+            $id = "Sharks";
+            break;
+        case 20:
+            $id = "Turtles";
+            break;
+        case 21:
+            $id = "Unicorns";
+            break;
+        case 22:
+            $id = "Vultures";
+            break;
+        case 23:
+            $id = "Whales";
+            break;
+        case 24:
+            $id = "Xeruses";
+            break;
+        case 25:
+            $id = "Yaks";
+            break;
+        case 26:
+            $id = "Zebras";
+            break;
+    } //switch
+     
+          
+    // add "with" and fruit//
+    // 2 words: animal with fruit 26*26 = 676
+  if ($len > 26) { 
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = $id . " with " . "Apples";
+            break;
+        case 2:
+            $id = $id . " with " . "Bananas";
+                break;         
+        case 3:
+            $id = $id . " with " . "Cherries";
+            break;
+        case 4:
+            $id = $id . " with " . "Dates";
+            break;
+        case 5:
+            $id = $id . " with " . "Elderberries";
+            break;
+        case 6:
+            $id = $id . " with " . "Figs";
+            break;
+        case 7:
+            $id = $id . " with " . "Grapes";
+            break;
+        case 8:
+            $id = $id . " with " . "Honeydew";
+            break;
+        case 9:
+            $id = $id . " with " . "Inga";
+            break;
+        case 10:
+            $id = $id . " with " . "Jackfruit";
+            break;
+        case 11:
+            $id = $id . " with " . "Kumquats";
+            break;
+        case 12:
+            $id = $id . " with " . "Lemons";
+            break;
+        case 13:
+            $id = $id . " with " . "Mangoes";
+            break;
+        case 14:
+            $id = $id . " with " . "Nectarines";
+            break;
+        case 15:
+            $id = $id . " with " . "Oranges";
+            break;
+        case 16:
+            $id = $id . " with " . "Papayas";
+            break;
+        case 17:
+            $id = $id . " with " . "Quinces";
+            break;
+        case 18:
+            $id = $id . " with " . "Raspberries";
+            break;
+        case 19:
+            $id = $id . " with " . "Strawberries";
+            break;
+        case 20:
+            $id = $id . " with " . "Tangerines";
+            break;
+        case 21:
+            $id = $id . " with " . "Ugni";
+            break;
+        case 22:
+            $id = $id . " with " . "Vanilla";
+            break;
+        case 23:
+            $id = $id . " with " . "Watermelon";
+            break;
+        case 24:
+            $id = $id . " with " . "Ximenia";
+            break;
+        case 25:
+            $id = $id . " with " . "Yangmei";
+            break;
+        case 26:
+            $id = $id . " with " . "Zucchini";
+            break;
+    } //switch
+  } //if
+    
+    // prepend color
+    // 3 words: color animal with fruit 26*676 = 17,576
+  if ($len > 676) { 
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Amber" . " " . $id;
+            break;
+        case 2:
+            $id = "Blue" . " " . $id;
+                break;         
+        case 3:
+            $id = "Celadon" . " " . $id;
+            break;
+        case 4:
+            $id = "Damask" . " " . $id;
+            break;
+        case 5:
+            $id = "Ecru" . " " . $id;
+            break;
+        case 6:
+            $id = "Fuchsia" . " " . $id;
+            break;
+        case 7:
+            $id = "Grey" . " " . $id;
+            break;
+        case 8:
+            $id = "Heliotrope" . " " . $id;
+            break;
+        case 9:
+            $id = "Indigo" . " " . $id;
+            break;
+        case 10:
+            $id = "Jade" . " " . $id;
+            break;
+        case 11:
+            $id = "Khaki" . " " . $id;
+            break;
+        case 12:
+            $id = "Lavender" . " " . $id;
+            break;
+        case 13:
+            $id = "Maroon" . " " . $id;
+            break;
+        case 14:
+            $id = "Navy" . " " . $id;
+            break;
+        case 15:
+            $id = "Ochre" . " " . $id;
+            break;
+        case 16:
+            $id = "Platinum" . " " . $id;
+            break;
+        case 17:
+            $id = "Quartz" . " " . $id;
+            break;
+        case 18:
+            $id = "Ruby" . " " . $id;
+            break;
+        case 19:
+            $id = "Saffron" . " " . $id;
+            break;
+        case 20:
+            $id = "Teal" . " " . $id;
+            break;
+        case 21:
+            $id = "Ultraviolet" . " " . $id;
+            break;
+        case 22:
+            $id = "Violet" . " " . $id;
+            break;
+        case 23:
+            $id = "White" . " " . $id;
+            break;
+        case 24:
+            $id = "Xanthic" . " " . $id;
+            break;
+        case 25:
+            $id = "Yellow" . " " . $id;
+            break;
+        case 26:
+            $id = "Zaffre" . " " . $id;
+            break;
+    } //switch
+  } // if
+    
+    // prepend adjective
+    // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
+  if ($len > 17576) { 
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Able" . " " . $id;
+            break;
+        case 2:
+            $id = "Brainy" . " " . $id;
+                break;         
+        case 3:
+            $id = "Cheerful" . " " . $id;
+            break;
+        case 4:
+            $id = "Diligent" . " " . $id;
+            break;
+        case 5:
+            $id = "Eccentric" . " " . $id;
+            break;
+        case 6:
+            $id = "Fiery" . " " . $id;
+            break;
+        case 7:
+            $id = "Gallant" . " " . $id;
+            break;
+        case 8:
+            $id = "Humble" . " " . $id;
+            break;
+        case 9:
+            $id = "Idyllic" . " " . $id;
+            break;
+        case 10:
+            $id = "Jovial" . " " . $id;
+            break;
+        case 11:
+            $id = "Kinetic" . " " . $id;
+            break;
+        case 12:
+            $id = "Lithe" . " " . $id;
+            break;
+        case 13:
+            $id = "Mellow" . " " . $id;
+            break;
+        case 14:
+            $id = "Nimble" . " " . $id;
+            break;
+        case 15:
+            $id = "Orderly" . " " . $id;
+            break;
+        case 16:
+            $id = "Poetic" . " " . $id;
+            break;
+        case 17:
+            $id = "Quirky" . " " . $id;
+            break;
+        case 18:
+            $id = "Radical" . " " . $id;
+            break;
+        case 19:
+            $id = "Shiny" . " " . $id;
+            break;
+        case 20:
+            $id = "Thrifty" . " " . $id;
+            break;
+        case 21:
+            $id = "Ultimate" . " " . $id;
+            break;
+        case 22:
+            $id = "Vibrant" . " " . $id;
+            break;
+        case 23:
+            $id = "Winsome" . " " . $id;
+            break;
+        case 24:
+            $id = "Xeric" . " " . $id;
+            break;
+        case 25:
+            $id = "Yogic" . " " . $id;
+            break;
+        case 26:
+            $id = "Zesty" . " " . $id;
+            break;
+    } //switch
+  }// if
+    // prepend verb
+    // 5 words: verb, adjective, color, animal with fruit 26*456976 = 11,881,376
+  if ($len > 456976) { 
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Activating" . " " . $id;
+            break;
+        case 2:
+            $id = "Blending" . " " . $id;
+                break;         
+        case 3:
+            $id = "Creating" . " " . $id;
+            break;
+        case 4:
+            $id = "Developing" . " " . $id;
+            break;
+        case 5:
+            $id = "Educating" . " " . $id;
+            break;
+        case 6:
+            $id = "Forming" . " " . $id;
+            break;
+        case 7:
+            $id = "Grouping" . " " . $id;
+            break;
+        case 8:
+            $id = "Honoring" . " " . $id;
+            break;
+        case 9:
+            $id = "Instantiating" . " " . $id;
+            break;
+        case 10:
+            $id = "Joining" . " " . $id;
+            break;
+        case 11:
+            $id = "Kindling" . " " . $id;
+            break;
+        case 12:
+            $id = "Lassoing" . " " . $id;
+            break;
+        case 13:
+            $id = "Moderating" . " " . $id;
+            break;
+        case 14:
+            $id = "Naming" . " " . $id;
+            break;
+        case 15:
+            $id = "Ordering" . " " . $id;
+            break;
+        case 16:
+            $id = "Pacifying" . " " . $id;
+            break;
+        case 17:
+            $id = "Qualifying" . " " . $id;
+            break;
+        case 18:
+            $id = "Renewing" . " " . $id;
+            break;
+        case 19:
+            $id = "Sampling" . " " . $id;
+            break;
+        case 20:
+            $id = "Teaching" . " " . $id;
+            break;
+        case 21:
+            $id = "Understanding" . " " . $id;
+            break;
+        case 22:
+            $id = "Verifying" . " " . $id;
+            break;
+        case 23:
+            $id = "Winning" . " " . $id;
+            break;
+        case 24:
+            $id = "Xenografting" . " " . $id;
+            break;
+        case 25:
+            $id = "Yoking" . " " . $id;
+            break;
+        case 26:
+            $id = "Zeroing" . " " . $id;
+            break;
+    } //switch
+  } //if
+    
+    // 6 words: adverb, verb, adjective, color, animal with fruit 26*11881376 = 308,915,776
+  if ($len > 11881376) { 
+    $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = "Absolutely" . " " . $id;
+            break;
+        case 2:
+            $id = "Brilliantly" . " " . $id;
+                break;         
+        case 3:
+            $id = "Charismatically" . " " . $id;
+            break;
+        case 4:
+            $id = "Deeply" . " " . $id;
+            break;
+        case 5:
+            $id = "Excellently" . " " . $id;
+            break;
+        case 6:
+            $id = "Fabulously" . " " . $id;
+            break;
+        case 7:
+            $id = "Graphically" . " " . $id;
+            break;
+        case 8:
+            $id = "Honestly" . " " . $id;
+            break;
+        case 9:
+            $id = "Intently" . " " . $id;
+            break;
+        case 10:
+            $id = "Justly" . " " . $id;
+            break;
+        case 11:
+            $id = "Keenly" . " " . $id;
+            break;
+        case 12:
+            $id = "Legitimately" . " " . $id;
+            break;
+        case 13:
+            $id = "Mostly" . " " . $id;
+            break;
+        case 14:
+            $id = "Nearly" . " " . $id;
+            break;
+        case 15:
+            $id = "Oddly" . " " . $id;
+            break;
+        case 16:
+            $id = "Perfectly" . " " . $id;
+            break;
+        case 17:
+            $id = "Quaintly" . " " . $id;
+            break;
+        case 18:
+            $id = "Really" . " " . $id;
+            break;
+        case 19:
+            $id = "Sharply" . " " . $id;
+            break;
+        case 20:
+            $id = "Truly" . " " . $id;
+            break;
+        case 21:
+            $id = "Utterly" . " " . $id;
+            break;
+        case 22:
+            $id = "Very" . " " . $id;
+            break;
+        case 23:
+            $id = "Wholly" . " " . $id;
+            break;
+        case 24:
+            $id = "Xtremely" . " " . $id;
+            break;
+        case 25:
+            $id = "Yearly" . " " . $id;
+            break;
+        case 26:
+            $id = "Zealously" . " " . $id;
+            break;
+    } //switch
+  } //if
+    
+    // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
+  if ($len > 308915776) {
+      $thisrand = rand(1,26);
+    switch ($thisrand) {
+        case 1: 
+            $id = $id . " and " . "Artichokes";
+            break;
+        case 2:
+            $id =  $id . " and " . "Beets";
+                break;         
+        case 3:
+            $id =  $id . " and " . "Celery";
+            break;
+        case 4:
+            $id =  $id . " and " . "Daikon";
+            break;
+        case 5:
+            $id =  $id . " and " . "Eggplant";
+            break;
+        case 6:
+            $id =  $id . " and " . "Fennel";
+            break;
+        case 7:
+            $id =  $id . " and " . "Garlic";
+            break;
+        case 8:
+            $id =  $id . " and " . "Horseradish";
+            break;
+        case 9:
+            $id =  $id . " and " . "Ivy";
+            break;
+        case 10:
+            $id =  $id . " and " . "Jícama";
+            break;
+        case 11:
+            $id =  $id . " and " . "Kale";
+            break;
+        case 12:
+            $id =  $id . " and " . "Lettuce";
+            break;
+        case 13:
+            $id =  $id . " and " . "Mustard";
+            break;
+        case 14:
+            $id =  $id . " and " . "Napa";
+            break;
+        case 15:
+            $id =  $id . " and " . "Okra";
+            break;
+        case 16:
+            $id =  $id . " and " . "Parsnip";
+            break;
+        case 17:
+            $id =  $id . " and " . "Quandong";
+            break;
+        case 18:
+            $id =  $id . " and " . "Radicchio";
+            break;
+        case 19:
+            $id =  $id . " and " . "Shallots";
+            break;
+        case 20:
+            $id =  $id . " and " . "Turnips";
+            break;
+        case 21:
+            $id =  $id . " and " . "Ulluco";
+            break;
+        case 22:
+            $id =  $id . " and " . "Vegetables";
+            break;
+        case 23:
+            $id =  $id . " and " . "Watercress";
+            break;
+        case 24:
+            $id =  $id . " and " . "Xocolatl";
+            break;
+        case 25:
+            $id =  $id . " and " . "Yams";
+            break;
+        case 26:
+            $id =  $id . " and " . "Ziti";
+            break;
+    } //switch
+  } //if
+    // add modulus (as string) to end of string if there is anything left
+  if ($len > 8031810176) {
+      $id = $id . " " . strval($len-8031810176);
+  } // if
+     } while (array_search($id, $usedpseudoids) !== false);
+    $usedpseudoids[] = $id;
     return $id;
 }
 
