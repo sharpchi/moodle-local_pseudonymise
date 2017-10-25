@@ -664,8 +664,14 @@ function assign_random_id() {
     return $id;
 }
 
-function assign_pseudo_id($len) {
+for ($i = 1; $i <=100; $i++) {
+		$j = floor(pow(1.26,$i));
+		$pseudoid = assign_pseudo_id($j);
+		//print "$i th string using size of $j is $pseudoid\n";
+		print "$pseudoid\n";
+}
 
+function assign_pseudo_id($len) {
     // rather than just assigning a random string of junk,
     // this algorithm assembles a phrase string consisting of serialized words in base 26
     // accept a length parameter to determine how long the phrase needs to be for uniqueness
@@ -765,11 +771,10 @@ function assign_pseudo_id($len) {
             break;
     } //switch
      
-
           
     // add "with" and fruit//
     // 2 words: animal with fruit 26*26 = 676
-  if $len > 26 { 
+  if ($len > 26) { 
     $thisrand = rand(1,26);
     switch ($thisrand) {
         case 1: 
@@ -852,12 +857,10 @@ function assign_pseudo_id($len) {
             break;
     } //switch
   } //if
-
     
     // prepend color
     // 3 words: color animal with fruit 26*676 = 17,576
-  if $len > 676 { 
-
+  if ($len > 676) { 
     $thisrand = rand(1,26);
     switch ($thisrand) {
         case 1: 
@@ -940,12 +943,10 @@ function assign_pseudo_id($len) {
             break;
     } //switch
   } // if
-
     
     // prepend adjective
     // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
-  if $len > 17576 { 
-
+  if ($len > 17576) { 
     $thisrand = rand(1,26);
     switch ($thisrand) {
         case 1: 
@@ -1028,11 +1029,9 @@ function assign_pseudo_id($len) {
             break;
     } //switch
   }// if
-
-
     // prepend verb
     // 5 words: verb, adjective, color, animal with fruit 26*456976 = 11,881,376
-  if $len > 456976 { 
+  if ($len > 456976) { 
     $thisrand = rand(1,26);
     switch ($thisrand) {
         case 1: 
@@ -1115,10 +1114,9 @@ function assign_pseudo_id($len) {
             break;
     } //switch
   } //if
-
     
     // 6 words: adverb, verb, adjective, color, animal with fruit 26*11881376 = 308,915,776
-  if $len > 11881376 { 
+  if ($len > 11881376) { 
     $thisrand = rand(1,26);
     switch ($thisrand) {
         case 1: 
@@ -1201,10 +1199,9 @@ function assign_pseudo_id($len) {
             break;
     } //switch
   } //if
-
     
     // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
-  if $len > 308915776 {
+  if ($len > 308915776) {
       $thisrand = rand(1,26);
     switch ($thisrand) {
         case 1: 
@@ -1220,7 +1217,7 @@ function assign_pseudo_id($len) {
             $id =  $id . " and " . "Daikon";
             break;
         case 5:
-            $id =  $id . " and " . "Egplant";
+            $id =  $id . " and " . "Eggplant";
             break;
         case 6:
             $id =  $id . " and " . "Fennel";
@@ -1285,19 +1282,14 @@ function assign_pseudo_id($len) {
         case 26:
             $id =  $id . " and " . "Ziti";
             break;
-    } //case
+    } //switch
   } //if
-
-
     // add modulus (as string) to end of string if there is anything left
-  if $len > 8031810176 {
+  if ($len > 8031810176) {
       $id = $id . " " . strval($len-8031810176);
   } // if
-
-     } while (array_search($id, $usedids) !== false);
-
-    $usedids[] = $id;
-
+     } while (array_search($id, $usedpseudoids) !== false);
+    $usedpseudoids[] = $id;
     return $id;
 }
 
