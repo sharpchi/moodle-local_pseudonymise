@@ -17,8 +17,8 @@
 /**
  * Anonymise personal identifiers
  *
- * @package    local_anonymise
- * @copyright  2016 David Monllao
+ * @package    local_pseudonymise
+ * @copyright  2017 Elizabeth Dalton, 2016 David Monllao
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,7 +27,7 @@ define('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->dirroot . '/local/anonymise/locallib.php');
+require_once($CFG->dirroot . '/local/pseudonymise/locallib.php');
 
 list($options, $unrecognized) = cli_get_params(
     array(
@@ -53,23 +53,23 @@ if ($unrecognized) {
 }
 
 $help =
-"Anonymises your site
+"Pseudonymises your site
 
 Options:
---all               Anonymise the whole site (includes all options below)
---activities        Anonymise activities
---categories        Anonymise categories
---courses           Anonymise courses
---site              Anonymise site home course
---files             Anonymise files
---users             Anonymise users
+--all               Pseudonymise the whole site (includes all options below)
+--activities        Pseudonymise activities
+--categories        Pseudonymise categories
+--courses           Pseudonymise courses
+--site              Pseudonymise site home course
+--files             Pseudonymise files
+--users             Pseudonymise users
 --password          Reset user passwords
---admin             Anonymise default administrator (except username and password)
---others            Anonymise all other potentially sensitive contents
+--admin             Pseudonymise default administrator (except username and password)
+--others            Pseudonymise all other potentially sensitive contents
 -h, --help          Print out this help
 
 Example:
-\$sudo -u www-data /usr/bin/php local/anonymise/cli/anonymise.php --all
+\$sudo -u www-data /usr/bin/php local/pseudonymise/cli/pseudonymise.php --all
 ";
 
 
@@ -78,7 +78,7 @@ if ($options['help']) {
     exit(0);
 }
 if (!debugging() || (empty($CFG->maintenance_enabled) && !file_exists("$CFG->dataroot/climaintenance.html"))) {
-    echo $OUTPUT->notification(get_string('nodebuggingmaintenancemodecli', 'local_anonymise'));
+    echo $OUTPUT->notification(get_string('nodebuggingmaintenancemodecli', 'local_pseudonymise'));
     exit(1);
 }
 
@@ -101,32 +101,32 @@ set_time_limit(0);
 
 // Exectute anonmisation based on selections.
 if ($options['activities']) {
-    echo $OUTPUT->heading(get_string('activities', 'local_anonymise'), 3);
+    echo $OUTPUT->heading(get_string('activities', 'local_pseudonymise'), 3);
     anonymise_activities();
 }
 
 if ($options['categories']) {
-    echo $OUTPUT->heading(get_string('categories', 'local_anonymise'), 3);
+    echo $OUTPUT->heading(get_string('categories', 'local_pseudonymise'), 3);
     anonymise_categories();
 }
 
 if ($options['courses']) {
-    echo $OUTPUT->heading(get_string('courses', 'local_anonymise'), 3);
+    echo $OUTPUT->heading(get_string('courses', 'local_pseudonymise'), 3);
     anonymise_courses($options['site']);
 }
 
 if ($options['files']) {
-    echo $OUTPUT->heading(get_string('files', 'local_anonymise'), 3);
+    echo $OUTPUT->heading(get_string('files', 'local_pseudonymise'), 3);
     anonymise_files();
 }
 
 if ($options['users']) {
-    echo $OUTPUT->heading(get_string('users', 'local_anonymise'), 3);
+    echo $OUTPUT->heading(get_string('users', 'local_pseudonymise'), 3);
     anonymise_users($options['password'], $options['admin']);
 }
 
 if ($options['others']) {
-    echo $OUTPUT->heading(get_string('others', 'local_anonymise'), 3);
+    echo $OUTPUT->heading(get_string('others', 'local_pseudonymise'), 3);
     anonymise_others($options['activities'], $options['password']);
 }
 
