@@ -110,7 +110,7 @@ function pseudonymise_activities() {
         foreach ($moduleinstances as $moduleinstance) {
 
             /* $randomid = assign_random_id(); */
-            $pseudoid = assign_pseudo_id();
+            $pseudoid = assign_serial_pseudo_id(count($modules));
             $moduleinstance->name = $modulename . ' ' . $pseudoid;
             $DB->update_record($module->name, $moduleinstance, true);
         }
@@ -131,7 +131,7 @@ function pseudoonymise_categories() {
     foreach ($allcategories as $category) {
 
     /* $randomid = assign_random_id(); */
-    $pseudoid = assign_pseudo_id();
+    $pseudoid = assign_pseudo_id(count($allcategories));
         $category->name = $categoyprefix . ' ' . $pseudoid;
         assign_if_not_null($category, 'description', $descriptionprefix . $pseudoid);
         assign_if_not_null($category, 'idnumber', $pseudoid);
@@ -161,7 +161,7 @@ function pseudonymise_courses($site = false) {
         }
 
     /* $randomid = assign_random_id(); */
-     $pseudoid = assign_pseudo_id();
+     $pseudoid = assign_pseudo_id(count($courses));
         $course->fullname = $courseprefix . ' ' . $pseudoid;
         $course->shortname = $courseprefix . ' ' . $pseudoid;
         assign_if_not_null($course, 'idnumber', $pseudoid);
@@ -179,9 +179,10 @@ function pseudonymise_courses($site = false) {
         if (!$site && $section->course == $sitecourse) {
             continue;
         }
+            $pseudoid = assign_serial_pseudo_id(count($sections));
 
-        assign_if_not_null($section, 'name', $sectionprefix . ' ' . $section->section);
-        assign_if_not_null($section, 'summary', $descriptionprefix . ' ' . $section->section);
+        assign_if_not_null($section, 'name', $sectionprefix . ' ' . $pseudoid);
+        assign_if_not_null($section, 'summary', $descriptionprefix . ' ' . $pseudoid);
 
         $DB->update_record('course_sections', $section, true);
     }
@@ -199,10 +200,10 @@ function pseudonymise_files() {
         assign_if_not_null($file, 'author', 'user ' . $file->userid);
         assign_if_not_null($file, 'source', '');
         if ($file->filename !== '.') {
-            assign_if_not_null($file, 'filename', assign_pseudo_id());
+            assign_if_not_null($file, 'filename', assign_serial_pseudo_id(count($files)));
         }
         if ($file->filepath !== '/') {
-            assign_if_not_null($file, 'filepath', '/' . assign_pseudo_id() . '/');
+            assign_if_not_null($file, 'filepath', '/' . assign_serial_pseudo_id(count($files)) . '/');
         }
         $DB->update_record('files', $file);
     }
@@ -250,15 +251,16 @@ function pseudonymise_users($password = false, $admin = false) {
             continue;
         }
 
-        $pseudoid = assign_pseudo_id();
-        /* this function is specific to assigning a plausible given name */
-        $pseudogname = assign_pseudo_gname();
+         /* this function is specific to assigning a plausible given name */
+       $pseudogname = assign_pseudo_gname();
         /* this function is specific to assigning a plausible surname */
         $pseudosname = assign_pseudo_sname();
         if ($user->username != 'admin') {
             $user->username = $userstring . $pseudogname . $pseudosname;
         }
-        /* assign_if_not_null($user, 'idnumber', $pseudoid); */
+         $pseudoid = assign_serial_pseudo_id(count($allusers));
+
+	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
         assign_if_not_null($user, 'idnumber', $pseudogname . $pseudosname);
         foreach ($fields as $field => $translation) {
             assign_if_not_null($user, $field, $translation . ' ' . $pseudoid);
@@ -266,12 +268,12 @@ function pseudonymise_users($password = false, $admin = false) {
 
         // Moving here fields specially small, we need to limit their size.
         assign_if_not_null($user, 'email', $pseudogname . $pseudosname . '@'. $domain);
-        assign_if_not_null($user, 'icq', 'icq ' . substr($randomid, 0, 10));
-        assign_if_not_null($user, 'phone1', 'phone1 ' . substr($randomid, 0, 12));
-        assign_if_not_null($user, 'phone2', 'phone2 ' . substr($randomid, 0, 12));
-        assign_if_not_null($user, 'url', 'http://' . $randomid . '.com');
-        assign_if_not_null($user, 'lastip', 'lastip ' . substr($randomid, 0, 37));
-        assign_if_not_null($user, 'secret', 'secret ' . substr($randomid, 0, 7));
+        assign_if_not_null($user, 'icq', 'icq ' . substr($pseudoid, 0, 10));
+        assign_if_not_null($user, 'phone1', 'phone1 ' . substr($pseudoid, 0, 12));
+        assign_if_not_null($user, 'phone2', 'phone2 ' . substr($pseudoid, 0, 12));
+        assign_if_not_null($user, 'url', 'http://' . $pseudoid . '.com');
+        assign_if_not_null($user, 'lastip', 'lastip ' . substr($pseudoid, 0, 37));
+        assign_if_not_null($user, 'secret', 'secret ' . substr($pseudoid, 0, 7));
 
         // Defaults.
         assign_if_not_null($user, 'city', $defaultcity);
