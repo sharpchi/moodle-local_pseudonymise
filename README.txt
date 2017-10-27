@@ -1,11 +1,13 @@
 WORK IN PROGRESS
 This is a tool to help pseudonymise site content for research purposes.
 
-Pseudonymisation (https://en.wikipedia.org/wiki/Pseudonymization) differs from anonymisation in that identifying
-fields are replaced with human-readable artificial identifiers.
+Pseudonymisation (https://en.wikipedia.org/wiki/Pseudonymization) differs from 
+anonymisation in that identifying fields are replaced with human-readable artificial identifiers.
 
-Data fields will also be altered by introducing a small amount of random variance (within 0.1 SD of the data values), to
-protect user identities from inference attacks.
+Data fields will also be altered by introducing a small amount of random variance (within 0.1 SD 
+of the data values), to protect user identities from inference attacks (not yet implemented).
+
+Also still to do: replacement of user names with common real-world given and family names.
 
 WARNING: This will alter data throughout a whole site. DO NOT use on production sites.
 
