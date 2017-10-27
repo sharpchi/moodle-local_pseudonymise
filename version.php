@@ -17,15 +17,15 @@
 /**
  * Version details.
  *
- * @package    local_anonymize
+ * @package    local_pseudonymize
  * @copyright  Gavin Henrick 2016
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016030400;
+$plugin->version   = 2017102600;
 $plugin->requires  = 2014051200; // Moodle 2.7.
 $plugin->maturity  = MATURITY_BETA;
 $plugin->release   = 'Version for Moodle 2.7 onwards';
-$plugin->component = 'local_anonymise';
+$plugin->component = 'local_pseudonymise';
