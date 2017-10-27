@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Anonymise personal identifiers
+ * Pseudonymise personal identifiers
  *
  * @package    local_pseudonymise
  * @copyright  2017 Elizabeth Dalton, 2016 David Monllao
@@ -102,32 +102,32 @@ set_time_limit(0);
 // Exectute anonmisation based on selections.
 if ($options['activities']) {
     echo $OUTPUT->heading(get_string('activities', 'local_pseudonymise'), 3);
-    anonymise_activities();
+    pseudonymise_activities();
 }
 
 if ($options['categories']) {
     echo $OUTPUT->heading(get_string('categories', 'local_pseudonymise'), 3);
-    anonymise_categories();
+    pseudonymise_categories();
 }
 
 if ($options['courses']) {
     echo $OUTPUT->heading(get_string('courses', 'local_pseudonymise'), 3);
-    anonymise_courses($options['site']);
+    pseudonymise_courses($options['site']);
 }
 
 if ($options['files']) {
     echo $OUTPUT->heading(get_string('files', 'local_pseudonymise'), 3);
-    anonymise_files();
+    pseudonymise_files();
 }
 
 if ($options['users']) {
     echo $OUTPUT->heading(get_string('users', 'local_pseudonymise'), 3);
-    anonymise_users($options['password'], $options['admin']);
+    pseudonymise_users($options['password'], $options['admin']);
 }
 
 if ($options['others']) {
     echo $OUTPUT->heading(get_string('others', 'local_pseudonymise'), 3);
-    anonymise_others($options['activities'], $options['password']);
+    pseudonymise_others($options['activities'], $options['password']);
 }
 
 exit(0);

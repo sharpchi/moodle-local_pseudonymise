@@ -110,7 +110,7 @@ function pseudonymise_activities() {
         foreach ($moduleinstances as $moduleinstance) {
 
             /* $randomid = assign_random_id(); */
-            $pseudoid = assign_pseudo_id();
+            $pseudoid = assign_serial_pseudo_id(count($modules));
             $moduleinstance->name = $modulename . ' ' . $pseudoid;
             $DB->update_record($module->name, $moduleinstance, true);
         }
@@ -131,7 +131,7 @@ function pseudoonymise_categories() {
     foreach ($allcategories as $category) {
 
     /* $randomid = assign_random_id(); */
-    $pseudoid = assign_pseudo_id();
+    $pseudoid = assign_pseudo_id(count($allcategories));
         $category->name = $categoyprefix . ' ' . $pseudoid;
         assign_if_not_null($category, 'description', $descriptionprefix . $pseudoid);
         assign_if_not_null($category, 'idnumber', $pseudoid);
@@ -161,7 +161,7 @@ function pseudonymise_courses($site = false) {
         }
 
     /* $randomid = assign_random_id(); */
-     $pseudoid = assign_pseudo_id();
+     $pseudoid = assign_pseudo_id(count($courses));
         $course->fullname = $courseprefix . ' ' . $pseudoid;
         $course->shortname = $courseprefix . ' ' . $pseudoid;
         assign_if_not_null($course, 'idnumber', $pseudoid);
@@ -179,9 +179,10 @@ function pseudonymise_courses($site = false) {
         if (!$site && $section->course == $sitecourse) {
             continue;
         }
+            $pseudoid = assign_serial_pseudo_id(count($sections));
 
-        assign_if_not_null($section, 'name', $sectionprefix . ' ' . $section->section);
-        assign_if_not_null($section, 'summary', $descriptionprefix . ' ' . $section->section);
+        assign_if_not_null($section, 'name', $sectionprefix . ' ' . $pseudoid);
+        assign_if_not_null($section, 'summary', $descriptionprefix . ' ' . $pseudoid);
 
         $DB->update_record('course_sections', $section, true);
     }
@@ -199,10 +200,10 @@ function pseudonymise_files() {
         assign_if_not_null($file, 'author', 'user ' . $file->userid);
         assign_if_not_null($file, 'source', '');
         if ($file->filename !== '.') {
-            assign_if_not_null($file, 'filename', assign_pseudo_id());
+            assign_if_not_null($file, 'filename', assign_serial_pseudo_id(count($files)));
         }
         if ($file->filepath !== '/') {
-            assign_if_not_null($file, 'filepath', '/' . assign_pseudo_id() . '/');
+            assign_if_not_null($file, 'filepath', '/' . assign_serial_pseudo_id(count($files)) . '/');
         }
         $DB->update_record('files', $file);
     }
@@ -244,21 +245,26 @@ function pseudonymise_users($password = false, $admin = false) {
 
     // Clear fields in the user table.
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
+    debugging('there are ' . count($allusers) . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
             continue;
         }
+    debugging('current user ' . $user->id . ' username ' . $user->username, DEBUG_DEVELOPER);
 
-        $pseudoid = assign_pseudo_id();
-        /* this function is specific to assigning a plausible given name */
-        $pseudogname = assign_pseudo_gname();
+         /* this function is specific to assigning a plausible given name */
+       $pseudogname = assign_pseudo_gname();
         /* this function is specific to assigning a plausible surname */
-        $pseudosname = assign_pseudo_sname();
+        $pseudosname = assign_pseudo_sname($pseudogname);
         if ($user->username != 'admin') {
             $user->username = $userstring . $pseudogname . $pseudosname;
         }
-        /* assign_if_not_null($user, 'idnumber', $pseudoid); */
+    debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
+         $pseudoid = assign_serial_pseudo_id(count($allusers));
+    debugging('new id ' . $userstring . $pseudoid, DEBUG_DEVELOPER);
+
+	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
         assign_if_not_null($user, 'idnumber', $pseudogname . $pseudosname);
         foreach ($fields as $field => $translation) {
             assign_if_not_null($user, $field, $translation . ' ' . $pseudoid);
@@ -266,19 +272,23 @@ function pseudonymise_users($password = false, $admin = false) {
 
         // Moving here fields specially small, we need to limit their size.
         assign_if_not_null($user, 'email', $pseudogname . $pseudosname . '@'. $domain);
-        assign_if_not_null($user, 'icq', 'icq ' . substr($randomid, 0, 10));
-        assign_if_not_null($user, 'phone1', 'phone1 ' . substr($randomid, 0, 12));
-        assign_if_not_null($user, 'phone2', 'phone2 ' . substr($randomid, 0, 12));
-        assign_if_not_null($user, 'url', 'http://' . $randomid . '.com');
-        assign_if_not_null($user, 'lastip', 'lastip ' . substr($randomid, 0, 37));
-        assign_if_not_null($user, 'secret', 'secret ' . substr($randomid, 0, 7));
+        assign_if_not_null($user, 'icq', 'icq ' . substr($pseudoid, 0, 10));
+        assign_if_not_null($user, 'phone1', 'phone1 ' . substr($pseudoid, 0, 12));
+        assign_if_not_null($user, 'phone2', 'phone2 ' . substr($pseudoid, 0, 12));
+        assign_if_not_null($user, 'url', 'http://' . $pseudoid . '.com');
+        assign_if_not_null($user, 'lastip', 'lastip ' . substr($pseudoid, 0, 37));
+        assign_if_not_null($user, 'secret', 'secret ' . substr($pseudoid, 0, 7));
 
         // Defaults.
         assign_if_not_null($user, 'city', $defaultcity);
         assign_if_not_null($user, 'country', $defaultcountry);
+	    // remove next line!!!
+        //assign_if_not_null($user, 'password', $pseudoid);
         $user->picture = 0;
         try {
+    //debugging('updating user ' . $user->id . ' with username ' . $user->username . ' and password ' . $user->$password, DEBUG_DEVELOPER);
             user_update_user($user, $user->username == 'admin' ? false : $password, false);
+    debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
         } catch (Exception $ex) {
             // No problem if there is any inconsistency just skip it.
             debugging('Skipped user ' . $user->id . ' update', DEBUG_DEVELOPER);
@@ -632,6 +642,7 @@ function pseudonymise_table_records($tablename, $columns) {
 }
 
 function assign_if_not_null(&$object, $field, $newvalue) {
+           // debugging('attempting to assign if not null ' . $field . ' new value ' . $newvalue, DEBUG_DEVELOPER);
     if (
         property_exists($object, $field) &&
         isset($object->$field) &&
@@ -664,12 +675,6 @@ function assign_random_id() {
     return $id;
 }
 
-for ($i = 1; $i <=100; $i++) {
-		$j = floor(pow(1.26,$i));
-		$pseudoid = assign_pseudo_id($j);
-		//print "$i th string using size of $j is $pseudoid\n";
-		print "$pseudoid\n";
-}
 function assign_pseudo_id($len) {
     // rather than just assigning a random string of junk,
     // this algorithm assembles a phrase string consisting of randomized strings categorized by type
@@ -801,7 +806,7 @@ function assign_serial_pseudo_id($len) {
     // Keep track of used IDs during the running of the script.
 
     static $usedserialpseudoids = array();
-    static $countserialpseudoids;
+    static $countserialpseudoids = 0;
     
     $animallist = explode(",", "Armadillos,Buffaloes,Cats,Dogs,Elephants,Foxes,Giraffes,Horses,Iguanas,Jaguars,Kangaroos,Leopards,Monkeys,Nightingales,Ostriches,Penguins,Quails,Rhinoceros,Sharks,Turtles,Unicorns,Vultures,Whales,Xeruses,Yaks,Zebras");
      $fruitlist = explode(",", "Apples,Bananas,Cherries,Dates,Elderberries,Figs,Grapes,Honeydews,Ingas,Jackfruit,Kumquats,Lemons,Mangoes,Nectarines,Oranges,Papayas,Quinces,Raspberries,Strawberries,Tangerines,Ugni,Vanilla,Watermelons,Ximenia,Yangmei,Zucchini");
@@ -811,11 +816,16 @@ function assign_serial_pseudo_id($len) {
     $adverblist = explode(",", "Absolutely,Brilliantly,Charismatically,Deeply,Excellently,Fabulously,Graphically,Honestly,Intently,Justly,Keenly,Lively,Mostly,Nearly,Oddly,Perfectly,Quaintly,Really,Sharply,Truly,Utterly,Very,Wholly,Xtremely,Yearly,Zealously");
     $vegetablelist = explode(",", "Artichoke,Beets,Celery,Daikon,Eggplant,Fennel,Garlic,Horseradish,Ivy,Jícama,Kale,Lettuce,Mustard,Napa,Okra,Parsnip,Quandong,Radicchio,Shallots,Turnips,Ulluco,Vegetable,Watercress,Xocolatl,Yam,Ziti");
    
-    $maxcount = 1;
      do {
+    $maxcount = 1;
     
+$fruitcount = count($fruitlist);
+	     //print "debug count fruitlist $fruitcount\n";
      // pick fruit//
+	     //print "debug maxcount $maxcount\n";
      $maxcount = $maxcount * count($fruitlist);
+	     //print "debug maxcount $maxcount\n";
+	    // print "debug maxcount $maxcount\n";
      $id = $fruitlist[fmod($countserialpseudoids,$maxcount)];
      
      if ($len > $maxcount) {
