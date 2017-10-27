@@ -17,7 +17,7 @@
 /**
  * Add page to admin menu.
  *
- * @package    local_anonymise
+ * @package    local_pseudonymise
  * @copyright  Gavin Henrick
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
-    $ADMIN->add('development', new admin_externalpage('local_anonymise',
-            get_string('pluginname', 'local_anonymise'),
-            new moodle_url('/local/anonymise/index.php')));
+    $ADMIN->add('development', new admin_externalpage('local_pseudonymise',
+            get_string('pluginname', 'local_pseudonymise'),
+            new moodle_url('/local/pseudonymise/index.php')));
 }
