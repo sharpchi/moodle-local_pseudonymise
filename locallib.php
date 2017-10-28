@@ -259,7 +259,7 @@ function pseudonymise_users($password = false, $admin = false) {
         if ($user->username != 'admin') {
             $user->username = $userstring . $pseudogname . $pseudosname;
         }
-    debugging('new name ' . $userstring . $pseudogname . $pseudosname, DEBUG_DEVELOPER);
+    debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
          $pseudoid = assign_serial_pseudo_id(count($allusers));
     debugging('new id ' . $userstring . $pseudoid, DEBUG_DEVELOPER);
 
@@ -281,6 +281,8 @@ function pseudonymise_users($password = false, $admin = false) {
         // Defaults.
         assign_if_not_null($user, 'city', $defaultcity);
         assign_if_not_null($user, 'country', $defaultcountry);
+	    // remove next line!!!
+        assign_if_not_null($user, 'password', $pseudoid);
         $user->picture = 0;
         try {
     debugging('updating user ' . $user->id . ' with username ' . $user->username . ' and password ' . $password, DEBUG_DEVELOPER);
