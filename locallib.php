@@ -269,7 +269,7 @@ function pseudonymise_users($password = false, $admin = false) {
         /* this function is specific to assigning a plausible surname */
         $pseudosname = assign_pseudo_sname($pseudogname);
         if ($user->username != 'admin') {
-            $user->username = $userstring . $pseudogname . $pseudosname;
+            $user->username = strtolower($userstring . $pseudogname . $pseudosname);
         }
     debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
          $pseudoid = assign_serial_pseudo_id($countusers);
