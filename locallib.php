@@ -247,22 +247,15 @@ function pseudonymise_users($password = false, $admin = false) {
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
 	
 	//how many users did we get? BUG: this method may be clearing $allusers?
-	/* $countusers = 0;
-	foreach ($allusers as $i) {
-		$countusers++;
-	}
-	// have to reset array after iterating :(
-	reset($allusers); */
-	//$countusers = count((array)$allusers);
 	$countusers = $DB->count_records('user', array('deleted' => 0));
 
-	debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
+	//debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
             continue;
         }
-    debugging('current user ' . $user->id . ' username ' . $user->username, DEBUG_DEVELOPER);
+    //debugging('current user ' . $user->id . ' username ' . $user->username, DEBUG_DEVELOPER);
 
          /* this function is specific to assigning a plausible given name */
        $pseudogname = assign_pseudo_gname();
@@ -271,12 +264,14 @@ function pseudonymise_users($password = false, $admin = false) {
         if ($user->username != 'admin') {
             $user->username = strtolower($userstring . $pseudogname . $pseudosname);
         }
-    debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
+    //debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
          $pseudoid = assign_serial_pseudo_id($countusers);
     debugging('new id ' . $userstring . $pseudoid, DEBUG_DEVELOPER);
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
         assign_if_not_null($user, 'idnumber', $pseudogname . $pseudosname);
+        assign_if_not_null($user, 'firstname', $pseudogname);
+        assign_if_not_null($user, 'lastname', $pseudosname);
         foreach ($fields as $field => $translation) {
             assign_if_not_null($user, $field, $translation . ' ' . $pseudoid);
         }
