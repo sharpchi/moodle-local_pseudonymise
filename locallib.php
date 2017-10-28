@@ -245,7 +245,14 @@ function pseudonymise_users($password = false, $admin = false) {
 
     // Clear fields in the user table.
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
-    debugging('there are ' . count($allusers) . ' users in the list', DEBUG_DEVELOPER);
+	
+	//how many users did we get?
+	$countusers = 0;
+	foreach ($allusers as $i) {
+		$countusers++;
+	}
+
+	debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
@@ -261,7 +268,7 @@ function pseudonymise_users($password = false, $admin = false) {
             $user->username = $userstring . $pseudogname . $pseudosname;
         }
     debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
-         $pseudoid = assign_serial_pseudo_id(count($allusers));
+         $pseudoid = assign_serial_pseudo_id($countusers);
     debugging('new id ' . $userstring . $pseudoid, DEBUG_DEVELOPER);
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
