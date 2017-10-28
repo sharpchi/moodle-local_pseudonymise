@@ -718,39 +718,39 @@ function assign_pseudo_id($len) {
      $id = $subjectlist[rand(0,count($subjectlist)-1)];
      $maxcount = $maxcount * count($subjectlist);
      
-     if (rand(0,1)>(min($len - $maxcount),1)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      //insert adjective
      $id = $modnounlist[rand(0,count($modnounlist)-1)] . " " . $id;
      		 $maxcount =  $maxcount * count($modnounlist);
      }
 
-     if (rand(0,1)>(min($len - $maxcount),1)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      //insert adjective
      $id = $adjlist[rand(0,count($adjlist)-1)] . " " . $id;
      		 $maxcount =  $maxcount * count($adjlist);
      }
 
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      		 // prepend modifier
     //$id = $modlist[rand(0,count($modlist))];
      $id = $modlist[rand(0,count($modlist)-1)] . " " . $id;
     		 $maxcount =  $maxcount * count($modlist);
      }
 
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      // prepend level prefix
       $id = $prefixlist[rand(0,count($prefixlist)-1)] . " " . $id;
     		 $maxcount =  $maxcount * count($prefixlist);
      }
     
      
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount {
      		 // combo courses
      		 $id = $id . " and " . $subjectlist[rand(0,count($subjectlist)-1)];
      		 $maxcount =  $maxcount * count($subjectlist);
      }
      
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      //posftix
        $id = $id  . " " . $postfixlist[rand(0,count($postfixlist)-1)];
      		 $maxcount =  $maxcount * count($postfixlist);
@@ -762,12 +762,12 @@ function assign_pseudo_id($len) {
      		 $maxcount =  $maxcount * count($majorlist);
      }
  */    
-     if (rand(0,1)>(($len - $maxcount)/$len)*100000) {
+     if (rand(0,1)<$len/$maxcount) {
     //level I II III IV
        $id = $id  . " " . $levellist[rand(0,count($levellist)-1)];
      		 $maxcount =  $maxcount * count($levellist);
      }
-     if (rand(0,1)>(($len - $maxcount)/$len)) {
+     if (rand(0,1)<$len/$maxcount) {
      // prepend gerund
       $id = $gerundlist[rand(0,count($gerundlist)-1)] . " " . $id;
     		 $maxcount =  $maxcount * count($gerundlist);
