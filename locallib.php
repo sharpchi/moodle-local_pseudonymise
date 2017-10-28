@@ -87,42 +87,46 @@ class local_pseudonymise_form extends moodleform {
 }
 
 function pseudonymise_activities() {
+	
+	global $DB;
+	
+	$modules = $DB->get_records('modules');
+	$countmodules = $DB->count_records('modules');
+	
+	debugging('Pseudonymising activities', DEBUG_DEVELOPER);
+	
+	foreach ($modules as $module) {
+		if (!debugging('', DEBUG_DEVELOPER)) {
+			echo BLOCK_CHAR . ' ';
+		}
 
-    global $DB;
-
-    $modules = $DB->get_records('modules');
-		$countmodules = $DB->count_records('modules');
-
-
-    debugging('Pseudonymising activities', DEBUG_DEVELOPER);
-
-    foreach ($modules as $module) {
-
-        if (!debugging('', DEBUG_DEVELOPER)) {
-            echo BLOCK_CHAR . ' ';
-        }
-
-        if (get_string_manager()->string_exists('pluginname', 'mod_' . $module->name)) {
-            $modulename = get_string('pluginname', 'mod_' . $module->name);
-        } else {
-            $modulename = $module->name;
-        }
-
-        $moduleinstances = $DB->get_recordset($module->name);
+		if (get_string_manager()->string_exists('pluginname', 'mod_' . $module->name)) {
+			$modulename = get_string('pluginname', 'mod_' . $module->name);
+		} else {
+			$modulename = $module->name;
+		}
+		
+		$moduleinstances = $DB->get_recordset($module->name);
 		$countmodules = $DB->count_records($module->name);
- debugging('there are ' . $countmodules . ' modules of type ' . $module->name . ' in the list', DEBUG_DEVELOPER);
-       foreach ($moduleinstances as $moduleinstance) {
-
-            /* $randomid = assign_random_id(); */
-            //$pseudoid = assign_serial_pseudo_id($countmodules);
-            $pseudoid = assign_pseudo_id($countmodules);
-  //debugging('changing activity ' . $module->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
-            $moduleinstance->name = $modulename . ' ' . $pseudoid;
-            $DB->update_record($module->name, $moduleinstance, true);
-  debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
-        }
-        $moduleinstances->close();
-    }
+		
+		debugging('there are ' . $countmodules . ' modules of type ' . $module->name . ' in the list', DEBUG_DEVELOPER);
+		foreach ($moduleinstances as $moduleinstance) {
+			/* $randomid = assign_random_id(); */
+			//$pseudoid = assign_serial_pseudo_id($countmodules);
+			$pseudoid = assign_pseudo_id($countmodules);
+			//debugging('changing activity ' . $module->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
+			$moduleinstance->name = $modulename . ' ' . $pseudoid;
+			try {
+				$DB->update_record($module->name, $moduleinstance, true);
+				debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
+			} catch (Exception $ex) {
+				debugging('error attempting update_record ' . $ex, DEBUG_DEVELOPER);
+				debugging('Skipped user ' . $user->id . ' update', DEBUG_DEVELOPER);
+			} //try
+		} //foreach ($moduleinstances
+	} //foreach $modules
+	
+	$moduleinstances->close();
 }
 
 function pseudonymise_categories() {
