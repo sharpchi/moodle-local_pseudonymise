@@ -247,22 +247,15 @@ function pseudonymise_users($password = false, $admin = false) {
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
 	
 	//how many users did we get? BUG: this method may be clearing $allusers?
-	/* $countusers = 0;
-	foreach ($allusers as $i) {
-		$countusers++;
-	}
-	// have to reset array after iterating :(
-	reset($allusers); */
-	//$countusers = count((array)$allusers);
 	$countusers = $DB->count_records('user', array('deleted' => 0));
 
-	debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
+	//debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
             continue;
         }
-    debugging('current user ' . $user->id . ' username ' . $user->username, DEBUG_DEVELOPER);
+    //debugging('current user ' . $user->id . ' username ' . $user->username, DEBUG_DEVELOPER);
 
          /* this function is specific to assigning a plausible given name */
        $pseudogname = assign_pseudo_gname();
@@ -271,15 +264,17 @@ function pseudonymise_users($password = false, $admin = false) {
         if ($user->username != 'admin') {
             $user->username = strtolower($userstring . $pseudogname . $pseudosname);
         }
-    debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
-         $pseudoid = assign_serial_pseudo_id($countusers);
-    debugging('new id ' . $userstring . $pseudoid, DEBUG_DEVELOPER);
+    //debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
+         $pseudoid = str_replace(" ","",strtolower(assign_serial_pseudo_id($countusers)));
+    debugging('new serialized string ' . $pseudoid, DEBUG_DEVELOPER);
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
         assign_if_not_null($user, 'idnumber', $pseudogname . $pseudosname);
         foreach ($fields as $field => $translation) {
             assign_if_not_null($user, $field, $translation . ' ' . $pseudoid);
         }
+        assign_if_not_null($user, 'firstname', $pseudogname);
+        assign_if_not_null($user, 'lastname', $pseudosname);
 
         // Moving here fields specially small, we need to limit their size.
         assign_if_not_null($user, 'email', $pseudogname . $pseudosname . '@'. $domain);
@@ -827,7 +822,9 @@ function assign_serial_pseudo_id($len) {
     $verblist = explode(",", "Activating,Blending,Creating,Developing,Educating,Forming,Grouping,Honoring,Instantiating,Joining,Kindling,Lassoing,Moderating,Naming,Ordering,Pacifying,Quieting,Renewing,Sampling,Teaching,Understanding,Valuing,Winning,Xenografting,Yoking,Zeroing");
     $adverblist = explode(",", "Absolutely,Brilliantly,Charismatically,Deeply,Excellently,Fabulously,Graphically,Honestly,Intently,Justly,Keenly,Lively,Mostly,Nearly,Oddly,Perfectly,Quaintly,Really,Sharply,Truly,Utterly,Very,Wholly,Xtremely,Yearly,Zealously");
     $vegetablelist = explode(",", "Artichoke,Beets,Celery,Daikon,Eggplant,Fennel,Garlic,Horseradish,Ivy,Jícama,Kale,Lettuce,Mustard,Napa,Okra,Parsnip,Quandong,Radicchio,Shallots,Turnips,Ulluco,Vegetable,Watercress,Xocolatl,Yam,Ziti");
-   
+
+	debugging('count serial pseudoids ' . $countserialpseudoids, DEBUG_DEVELOPER);
+
      do {
     $maxcount = 1;
     
@@ -838,12 +835,14 @@ $fruitcount = count($fruitlist);
      $maxcount = $maxcount * count($fruitlist);
 	     //print "debug maxcount $maxcount\n";
 	    // print "debug maxcount $maxcount\n";
-     $id = $fruitlist[fmod($countserialpseudoids,$maxcount)];
+     $id = $fruitlist[fmod($countserialpseudoids,count($fruitlist))];
+	debugging('fmod ' . $countserialpseudoids . ' , ' . count($fruitlist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
      
      if ($len > $maxcount) {
     // 2 words: animal with fruit 26*26 = 676
      		 $maxcount =  $maxcount * count($animallist);
      $id =  $animallist[fmod($countserialpseudoids/$maxcount, count($animallist))] . " with " . $id;
+	debugging('fmod ' . $countserialpseudoids/$maxcount . ' , ' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
      }
 
      if ($len > $maxcount) {
