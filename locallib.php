@@ -115,6 +115,7 @@ function pseudonymise_activities() {
 
             /* $randomid = assign_random_id(); */
             $pseudoid = assign_serial_pseudo_id($countmodules);
+ debugging('changed activity name to ' . $pseudoid, DEBUG_DEVELOPER);
             $moduleinstance->name = $modulename . ' ' . $pseudoid;
             $DB->update_record($module->name, $moduleinstance, true);
         }
@@ -717,13 +718,13 @@ function assign_pseudo_id($len) {
      $id = $subjectlist[rand(0,count($subjectlist)-1)];
      $maxcount = $maxcount * count($subjectlist);
      
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)>(min($len - $maxcount),1)/$len)*.25) {
      //insert adjective
      $id = $modnounlist[rand(0,count($modnounlist)-1)] . " " . $id;
      		 $maxcount =  $maxcount * count($modnounlist);
      }
 
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)>(min($len - $maxcount),1)/$len)*.25) {
      //insert adjective
      $id = $adjlist[rand(0,count($adjlist)-1)] . " " . $id;
      		 $maxcount =  $maxcount * count($adjlist);
