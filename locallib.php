@@ -807,16 +807,16 @@ function assign_serial_pseudo_id($len) {
     $adverblist = explode(",", "Absolutely,Brilliantly,Charismatically,Deeply,Excellently,Fabulously,Graphically,Honestly,Intently,Justly,Keenly,Lively,Mostly,Nearly,Oddly,Perfectly,Quaintly,Really,Sharply,Truly,Utterly,Very,Wholly,Xtremely,Yearly,Zealously");
     $vegetablelist = explode(",", "Artichoke,Beets,Celery,Daikon,Eggplant,Fennel,Garlic,Horseradish,Ivy,Jícama,Kale,Lettuce,Mustard,Napa,Okra,Parsnip,Quandong,Radicchio,Shallots,Turnips,Ulluco,Vegetable,Watercress,Xocolatl,Yam,Ziti");
    
-    $maxcount = 1;
      do {
+    $maxcount = 1;
     
 $fruitcount = count($fruitlist);
 	     print "debug count fruitlist $fruitcount\n";
      // pick fruit//
-	     print "debug maxcount $maxcount";
+	     print "debug maxcount $maxcount\n";
      $maxcount = $maxcount * count($fruitlist);
-	     print "debug maxcount $maxcount";
-	     print "debug maxcount $maxcount";
+	     print "debug maxcount $maxcount\n";
+	     print "debug maxcount $maxcount\n";
      $id = $fruitlist[fmod($countserialpseudoids,$maxcount)];
      
      if ($len > $maxcount) {
