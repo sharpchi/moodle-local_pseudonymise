@@ -261,6 +261,7 @@ function pseudonymise_users($password = false, $admin = false) {
         }
     debugging('new name ' . $userstring . $pseudogname . $pseudosname, DEBUG_DEVELOPER);
          $pseudoid = assign_serial_pseudo_id(count($allusers));
+    debugging('new id ' . $userstring . $pseudoid, DEBUG_DEVELOPER);
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
         assign_if_not_null($user, 'idnumber', $pseudogname . $pseudosname);
