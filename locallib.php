@@ -639,7 +639,7 @@ function pseudonymise_table_records($tablename, $columns) {
 }
 
 function assign_if_not_null(&$object, $field, $newvalue) {
-            debugging('attempting to assign if not null ' . $field . ' new value ' . $newvalue, DEBUG_DEVELOPER);
+           // debugging('attempting to assign if not null ' . $field . ' new value ' . $newvalue, DEBUG_DEVELOPER);
     if (
         property_exists($object, $field) &&
         isset($object->$field) &&
