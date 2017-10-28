@@ -666,12 +666,6 @@ function assign_random_id() {
     return $id;
 }
 
-for ($i = 1; $i <=100; $i++) {
-		$j = floor(pow(1.26,$i));
-		$pseudoid = assign_pseudo_id($j);
-		//print "$i th string using size of $j is $pseudoid\n";
-		print "$pseudoid\n";
-}
 function assign_pseudo_id($len) {
     // rather than just assigning a random string of junk,
     // this algorithm assembles a phrase string consisting of randomized strings categorized by type
