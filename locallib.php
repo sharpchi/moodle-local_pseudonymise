@@ -836,13 +836,13 @@ $fruitcount = count($fruitlist);
 	     //print "debug maxcount $maxcount\n";
 	    // print "debug maxcount $maxcount\n";
      $id = $fruitlist[fmod($countserialpseudoids,count($fruitlist))];
-	debugging('fmod of counter mod fruitcount' . $countserialpseudoids . ' , ' . count($fruitlist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
+	debugging('fmod of counter  ' . $countserialpseudoids . ' , mod by fruitcount ' . count($fruitlist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
      
      if ($len > $maxcount) {
     // 2 words: animal with fruit 26*26 = 676
-     		 $maxcount =  $maxcount * count($animallist);
      $id =  $animallist[fmod(floor($countserialpseudoids/$maxcount), count($animallist))] . " with " . $id;
-	debugging('fmod of counter/maxcount mod animalcount ' . floor($countserialpseudoids/$maxcount) . ' , ' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
+	debugging('floor of fmod of counter/maxcount ' . floor($countserialpseudoids/$maxcount) . ' ,  mod animalcount' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
+     		 $maxcount =  $maxcount * count($animallist);
      }
 
      if ($len > $maxcount) {
