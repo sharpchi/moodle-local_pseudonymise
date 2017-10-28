@@ -116,9 +116,10 @@ function pseudonymise_activities() {
             /* $randomid = assign_random_id(); */
             //$pseudoid = assign_serial_pseudo_id($countmodules);
             $pseudoid = assign_pseudo_id($countmodules);
-  debugging('changed activity ' . $module->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
+  //debugging('changing activity ' . $module->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
             $moduleinstance->name = $modulename . ' ' . $pseudoid;
             $DB->update_record($module->name, $moduleinstance, true);
+  debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
         }
         $moduleinstances->close();
     }
