@@ -302,6 +302,7 @@ function pseudonymise_users($password = false, $admin = false) {
     debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
         } catch (Exception $ex) {
             // No problem if there is any inconsistency just skip it.
+            debugging('error attempting user_update_user ' . $ex, DEBUG_DEVELOPER);
             debugging('Skipped user ' . $user->id . ' update', DEBUG_DEVELOPER);
         }
     }
