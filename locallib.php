@@ -812,7 +812,7 @@ function assign_serial_pseudo_id($len) {
     
      // pick fruit//
      $maxcount = $maxcount * count($fruitlist);
-     $id = $fruitlist[fmod($countserialpseudoids,$maxcount)-1];
+     $id = $fruitlist[fmod($countserialpseudoids,$maxcount)-2];
      
      if ($len > $maxcount) {
     // 2 words: animal with fruit 26*26 = 676
