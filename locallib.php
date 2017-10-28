@@ -109,7 +109,9 @@ function pseudonymise_activities() {
         }
 
         $moduleinstances = $DB->get_recordset($module->name);
-        foreach ($moduleinstances as $moduleinstance) {
+		$countmodules = $DB->count_records($module->name);
+ debugging('there are ' . $countmodules . ' modules of type ' . $module->name . ' in the list', DEBUG_DEVELOPER);
+       foreach ($moduleinstances as $moduleinstance) {
 
             /* $randomid = assign_random_id(); */
             $pseudoid = assign_serial_pseudo_id($countmodules);
@@ -120,7 +122,7 @@ function pseudonymise_activities() {
     }
 }
 
-function pseudoonymise_categories() {
+function pseudonymise_categories() {
 
     global $DB;
 
@@ -131,6 +133,7 @@ function pseudoonymise_categories() {
 
     $allcategories = $DB->get_recordset('course_categories');
 		$countcategories = $DB->count_records('course_categories');
+debugging('there are ' . $countcategories . ' categories in the list', DEBUG_DEVELOPER);
     foreach ($allcategories as $category) {
 
     /* $randomid = assign_random_id(); */
@@ -157,7 +160,8 @@ function pseudonymise_courses($site = false) {
     // Pseudonymise course data.
     $courses = $DB->get_recordset('course');
  		$countcourses = $DB->count_records('course');
-   foreach ($courses as $course) {
+debugging('there are ' . $countcourses . ' courses in the list', DEBUG_DEVELOPER);
+	foreach ($courses as $course) {
 
         if (!$site && $course->format == 'site') {
             $sitecourse = $course->id;
@@ -179,6 +183,7 @@ function pseudonymise_courses($site = false) {
     // Pseudonymise sections - replace with numbers
     $sections = $DB->get_recordset('course_sections');
  		$countsections = $DB->count_records('course_sections');
+debugging('there are ' . $countsections . ' sections in the list', DEBUG_DEVELOPER);
     foreach ($sections as $section) {
 
         if (!$site && $section->course == $sitecourse) {
