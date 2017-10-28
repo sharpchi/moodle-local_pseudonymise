@@ -254,7 +254,7 @@ function pseudonymise_users($password = false, $admin = false) {
          /* this function is specific to assigning a plausible given name */
        $pseudogname = assign_pseudo_gname();
         /* this function is specific to assigning a plausible surname */
-        $pseudosname = assign_pseudo_sname();
+        $pseudosname = assign_pseudo_sname($pseudogname);
         if ($user->username != 'admin') {
             $user->username = $userstring . $pseudogname . $pseudosname;
         }
