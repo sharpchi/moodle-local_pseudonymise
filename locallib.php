@@ -250,6 +250,7 @@ function pseudonymise_users($password = false, $admin = false) {
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
             continue;
         }
+    debugging('current user ' . $user->id . ' username ' . $user->username, DEBUG_DEVELOPER);
 
          /* this function is specific to assigning a plausible given name */
        $pseudogname = assign_pseudo_gname();
@@ -258,6 +259,7 @@ function pseudonymise_users($password = false, $admin = false) {
         if ($user->username != 'admin') {
             $user->username = $userstring . $pseudogname . $pseudosname;
         }
+    debugging('new name ' . $userstring . $pseudogname . $pseudosname, DEBUG_DEVELOPER);
          $pseudoid = assign_serial_pseudo_id(count($allusers));
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
