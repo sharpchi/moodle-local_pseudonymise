@@ -265,7 +265,7 @@ function pseudonymise_users($password = false, $admin = false) {
             $user->username = strtolower($userstring . $pseudogname . $pseudosname);
         }
     //debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
-         $pseudoid = str_replace(strtolower(assign_serial_pseudo_id($countusers))," ");
+         $pseudoid = str_replace(" ","",strtolower(assign_serial_pseudo_id($countusers)));
     debugging('new serialized string ' . $pseudoid, DEBUG_DEVELOPER);
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
