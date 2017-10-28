@@ -249,7 +249,7 @@ function pseudonymise_users($password = false, $admin = false) {
 	//how many users did we get? BUG: this method may be clearing $allusers?
 	$countusers = 0;
 	foreach ($allusers as $i) {
-		$countusers=$i;
+		$countusers++;
 	}
 	// have to reset array after iterating :(
 	reset($allusers);
