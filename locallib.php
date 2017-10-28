@@ -245,6 +245,7 @@ function pseudonymise_users($password = false, $admin = false) {
 
     // Clear fields in the user table.
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
+    debugging('there are ' . count($allusers) . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
