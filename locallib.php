@@ -245,7 +245,18 @@ function pseudonymise_users($password = false, $admin = false) {
 
     // Clear fields in the user table.
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
-    debugging('there are ' . count($allusers) . ' users in the list', DEBUG_DEVELOPER);
+	
+	//how many users did we get? BUG: this method may be clearing $allusers?
+	/* $countusers = 0;
+	foreach ($allusers as $i) {
+		$countusers++;
+	}
+	// have to reset array after iterating :(
+	reset($allusers); */
+	//$countusers = count((array)$allusers);
+	$countusers = $DB->count_records('user', array('deleted' => 0));
+
+	debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
 
         if ($user->username == 'guest' || (!$admin && $user->username == 'admin')) {
@@ -258,10 +269,10 @@ function pseudonymise_users($password = false, $admin = false) {
         /* this function is specific to assigning a plausible surname */
         $pseudosname = assign_pseudo_sname($pseudogname);
         if ($user->username != 'admin') {
-            $user->username = $userstring . $pseudogname . $pseudosname;
+            $user->username = strtolower($userstring . $pseudogname . $pseudosname);
         }
     debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
-         $pseudoid = assign_serial_pseudo_id(count($allusers));
+         $pseudoid = assign_serial_pseudo_id($countusers);
     debugging('new id ' . $userstring . $pseudoid, DEBUG_DEVELOPER);
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
@@ -291,6 +302,7 @@ function pseudonymise_users($password = false, $admin = false) {
     debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
         } catch (Exception $ex) {
             // No problem if there is any inconsistency just skip it.
+            debugging('error attempting user_update_user ' . $ex, DEBUG_DEVELOPER);
             debugging('Skipped user ' . $user->id . ' update', DEBUG_DEVELOPER);
         }
     }
