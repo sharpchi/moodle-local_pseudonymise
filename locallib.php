@@ -252,7 +252,7 @@ function pseudonymise_users($password = false, $admin = false) {
 		$countusers=$i;
 	}
 	// have to reset array after iterating :(
-	$reset($allusers);
+	reset($allusers);
 
 	debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
