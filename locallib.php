@@ -253,7 +253,8 @@ function pseudonymise_users($password = false, $admin = false) {
 	}
 	// have to reset array after iterating :(
 	reset($allusers); */
-	$countusers = count((array)$allusers);
+	//$countusers = count((array)$allusers);
+	$countusers = $DB->count_records('user', array('deleted' => 0));
 
 	debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
