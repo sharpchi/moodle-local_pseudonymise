@@ -810,6 +810,8 @@ function assign_serial_pseudo_id($len) {
     $maxcount = 1;
      do {
     
+$fruitcount = count($fruitlist);
+	     print "debug count fruitlist $fruitcount\n";
      // pick fruit//
 	     print "debug maxcount $maxcount";
      $maxcount = $maxcount * count($fruitlist);
