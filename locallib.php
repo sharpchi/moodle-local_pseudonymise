@@ -744,7 +744,7 @@ function assign_pseudo_id($len) {
      }
     
      
-     if (rand(0,1)<$len/$maxcount {
+     if (rand(0,1)<$len/$maxcount) {
      		 // combo courses
      		 $id = $id . " and " . $subjectlist[rand(0,count($subjectlist)-1)];
      		 $maxcount =  $maxcount * count($subjectlist);
