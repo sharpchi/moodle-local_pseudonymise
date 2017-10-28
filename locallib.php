@@ -797,7 +797,7 @@ function assign_serial_pseudo_id($len) {
     // Keep track of used IDs during the running of the script.
 
     static $usedserialpseudoids = array();
-    static $countserialpseudoids;
+    static $countserialpseudoids = 1;
     
     $animallist = explode(",", "Armadillos,Buffaloes,Cats,Dogs,Elephants,Foxes,Giraffes,Horses,Iguanas,Jaguars,Kangaroos,Leopards,Monkeys,Nightingales,Ostriches,Penguins,Quails,Rhinoceros,Sharks,Turtles,Unicorns,Vultures,Whales,Xeruses,Yaks,Zebras");
      $fruitlist = explode(",", "Apples,Bananas,Cherries,Dates,Elderberries,Figs,Grapes,Honeydews,Ingas,Jackfruit,Kumquats,Lemons,Mangoes,Nectarines,Oranges,Papayas,Quinces,Raspberries,Strawberries,Tangerines,Ugni,Vanilla,Watermelons,Ximenia,Yangmei,Zucchini");
@@ -811,7 +811,10 @@ function assign_serial_pseudo_id($len) {
      do {
     
      // pick fruit//
+	     print "debug maxcount $maxcount";
      $maxcount = $maxcount * count($fruitlist);
+	     print "debug maxcount $maxcount";
+	     print "debug maxcount $maxcount";
      $id = $fruitlist[fmod($countserialpseudoids,$maxcount)-1];
      
      if ($len > $maxcount) {
