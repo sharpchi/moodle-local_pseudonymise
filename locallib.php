@@ -283,8 +283,9 @@ function pseudonymise_users($password = false, $admin = false) {
         assign_if_not_null($user, 'country', $defaultcountry);
         $user->picture = 0;
         try {
+    debugging('updating user ' . $user->id . ' with username ' . $user->username . ' and password ' . $password, DEBUG_DEVELOPER);
             user_update_user($user, $user->username == 'admin' ? false : $password, false);
-    debugging('udated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
+    debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
         } catch (Exception $ex) {
             // No problem if there is any inconsistency just skip it.
             debugging('Skipped user ' . $user->id . ' update', DEBUG_DEVELOPER);
