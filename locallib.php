@@ -247,12 +247,13 @@ function pseudonymise_users($password = false, $admin = false) {
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
 	
 	//how many users did we get? BUG: this method may be clearing $allusers?
-	$countusers = 0;
+	/* $countusers = 0;
 	foreach ($allusers as $i) {
 		$countusers++;
 	}
 	// have to reset array after iterating :(
-	reset($allusers);
+	reset($allusers); */
+	$countusers = count((array)$allusers);
 
 	debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
     foreach ($allusers as $user) {
