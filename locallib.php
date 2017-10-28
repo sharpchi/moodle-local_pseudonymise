@@ -293,8 +293,8 @@ function pseudonymise_users($password = false, $admin = false) {
         $user->picture = 0;
         try {
     //debugging('updating user ' . $user->id . ' with username ' . $user->username . ' and password ' . $user->$password, DEBUG_DEVELOPER);
-   //         user_update_user($user, $user->username == 'admin' ? false : $password, false);
-    debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
+            user_update_user($user, $user->username == 'admin' ? false : $password, false);
+    //debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
         } catch (Exception $ex) {
             // No problem if there is any inconsistency just skip it.
             debugging('error attempting user_update_user ' . $ex, DEBUG_DEVELOPER);
