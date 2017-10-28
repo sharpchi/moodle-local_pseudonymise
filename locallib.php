@@ -282,10 +282,10 @@ function pseudonymise_users($password = false, $admin = false) {
         assign_if_not_null($user, 'city', $defaultcity);
         assign_if_not_null($user, 'country', $defaultcountry);
 	    // remove next line!!!
-        assign_if_not_null($user, 'password', $pseudoid);
+        //assign_if_not_null($user, 'password', $pseudoid);
         $user->picture = 0;
         try {
-    debugging('updating user ' . $user->id . ' with username ' . $user->username . ' and password ' . $user->$password, DEBUG_DEVELOPER);
+    //debugging('updating user ' . $user->id . ' with username ' . $user->username . ' and password ' . $user->$password, DEBUG_DEVELOPER);
             user_update_user($user, $user->username == 'admin' ? false : $password, false);
     debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
         } catch (Exception $ex) {
