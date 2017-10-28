@@ -91,6 +91,8 @@ function pseudonymise_activities() {
     global $DB;
 
     $modules = $DB->get_records('modules');
+		$countmodules = $DB->count_records('modules');
+
 
     debugging('Pseudonymising activities', DEBUG_DEVELOPER);
 
@@ -110,7 +112,7 @@ function pseudonymise_activities() {
         foreach ($moduleinstances as $moduleinstance) {
 
             /* $randomid = assign_random_id(); */
-            $pseudoid = assign_serial_pseudo_id(count($modules));
+            $pseudoid = assign_serial_pseudo_id($countmodules);
             $moduleinstance->name = $modulename . ' ' . $pseudoid;
             $DB->update_record($module->name, $moduleinstance, true);
         }
@@ -128,10 +130,11 @@ function pseudoonymise_categories() {
     debugging('Pseudonymising categories', DEBUG_DEVELOPER);
 
     $allcategories = $DB->get_recordset('course_categories');
+		$countcategories = $DB->count_records('course_categories');
     foreach ($allcategories as $category) {
 
     /* $randomid = assign_random_id(); */
-    $pseudoid = assign_pseudo_id(count($allcategories));
+    $pseudoid = assign_pseudo_id($countcategories);
         $category->name = $categoyprefix . ' ' . $pseudoid;
         assign_if_not_null($category, 'description', $descriptionprefix . $pseudoid);
         assign_if_not_null($category, 'idnumber', $pseudoid);
@@ -153,7 +156,8 @@ function pseudonymise_courses($site = false) {
 
     // Pseudonymise course data.
     $courses = $DB->get_recordset('course');
-    foreach ($courses as $course) {
+ 		$countcourses = $DB->count_records('course');
+   foreach ($courses as $course) {
 
         if (!$site && $course->format == 'site') {
             $sitecourse = $course->id;
@@ -161,7 +165,7 @@ function pseudonymise_courses($site = false) {
         }
 
     /* $randomid = assign_random_id(); */
-     $pseudoid = assign_pseudo_id(count($courses));
+     $pseudoid = assign_pseudo_id($countcourses);
         $course->fullname = $courseprefix . ' ' . $pseudoid;
         $course->shortname = $courseprefix . ' ' . $pseudoid;
         assign_if_not_null($course, 'idnumber', $pseudoid);
@@ -174,12 +178,13 @@ function pseudonymise_courses($site = false) {
 
     // Pseudonymise sections - replace with numbers
     $sections = $DB->get_recordset('course_sections');
+ 		$countsections = $DB->count_records('course_sections');
     foreach ($sections as $section) {
 
         if (!$site && $section->course == $sitecourse) {
             continue;
         }
-            $pseudoid = assign_serial_pseudo_id(count($sections));
+            $pseudoid = assign_serial_pseudo_id($countsections);
 
         assign_if_not_null($section, 'name', $sectionprefix . ' ' . $pseudoid);
         assign_if_not_null($section, 'summary', $descriptionprefix . ' ' . $pseudoid);
@@ -195,15 +200,16 @@ function pseudonymise_files() {
     debugging('Pseudonymising files');
 
     $files = $DB->get_recordset('files');
+ 		$countfiles = $DB->count_records('files');
     foreach ($files as $file) {
 
         assign_if_not_null($file, 'author', 'user ' . $file->userid);
         assign_if_not_null($file, 'source', '');
         if ($file->filename !== '.') {
-            assign_if_not_null($file, 'filename', assign_serial_pseudo_id(count($files)));
+            assign_if_not_null($file, 'filename', assign_serial_pseudo_id($countfiles));
         }
         if ($file->filepath !== '/') {
-            assign_if_not_null($file, 'filepath', '/' . assign_serial_pseudo_id(count($files)) . '/');
+            assign_if_not_null($file, 'filepath', '/' . assign_serial_pseudo_id($countfiles) . '/');
         }
         $DB->update_record('files', $file);
     }
