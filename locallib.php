@@ -246,10 +246,10 @@ function pseudonymise_users($password = false, $admin = false) {
     // Clear fields in the user table.
     $allusers = $DB->get_recordset('user', array('deleted' => 0));
 	
-	//how many users did we get?
+	//how many users did we get? BUG: this method may be clearing $allusers?
 	$countusers = 0;
 	foreach ($allusers as $i) {
-		$countusers++;
+		$countusers=$i;
 	}
 
 	debugging('there are ' . $countusers . ' users in the list', DEBUG_DEVELOPER);
