@@ -114,14 +114,14 @@ function pseudonymise_activities() {
 			/* $randomid = assign_random_id(); */
 			//$pseudoid = assign_serial_pseudo_id($countmodules);
 			$pseudoid = assign_pseudo_id($countmodules);
-			//debugging('changing activity ' . $module->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
+			debugging('changing activity ' . $moduleinstance->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
 			$moduleinstance->name = $modulename . ' ' . $pseudoid;
 			try {
 				$DB->update_record($module->name, $moduleinstance, true);
 				debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
 			} catch (Exception $ex) {
 				debugging('error attempting update_record ' . $ex, DEBUG_DEVELOPER);
-				debugging('Skipped user ' . $user->id . ' update', DEBUG_DEVELOPER);
+				debugging('Skipped activity ' . $moduleinstance->name . ' update', DEBUG_DEVELOPER);
 			} //try
 		} //foreach ($moduleinstances
 	} //foreach $modules
