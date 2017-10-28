@@ -265,16 +265,16 @@ function pseudonymise_users($password = false, $admin = false) {
             $user->username = strtolower($userstring . $pseudogname . $pseudosname);
         }
     //debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
-         $pseudoid = assign_serial_pseudo_id($countusers);
-    debugging('new id ' . $userstring . $pseudoid, DEBUG_DEVELOPER);
+         $pseudoid = str_replace(strtolower(assign_serial_pseudo_id($countusers))," ");
+    debugging('new serialized string ' . $pseudoid, DEBUG_DEVELOPER);
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
         assign_if_not_null($user, 'idnumber', $pseudogname . $pseudosname);
-        assign_if_not_null($user, 'firstname', $pseudogname);
-        assign_if_not_null($user, 'lastname', $pseudosname);
         foreach ($fields as $field => $translation) {
             assign_if_not_null($user, $field, $translation . ' ' . $pseudoid);
         }
+        assign_if_not_null($user, 'firstname', $pseudogname);
+        assign_if_not_null($user, 'lastname', $pseudosname);
 
         // Moving here fields specially small, we need to limit their size.
         assign_if_not_null($user, 'email', $pseudogname . $pseudosname . '@'. $domain);
