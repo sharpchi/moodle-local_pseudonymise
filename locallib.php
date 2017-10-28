@@ -87,38 +87,49 @@ class local_pseudonymise_form extends moodleform {
 }
 
 function pseudonymise_activities() {
+	
+	global $DB;
+	
+	$modules = $DB->get_records('modules');
+	$countmodules = $DB->count_records('modules');
+	
+	debugging('Pseudonymising activities', DEBUG_DEVELOPER);
+	
+	foreach ($modules as $module) {
+		if (!debugging('', DEBUG_DEVELOPER)) {
+			echo BLOCK_CHAR . ' ';
+		}
 
-    global $DB;
-
-    $modules = $DB->get_records('modules');
-
-    debugging('Pseudonymising activities', DEBUG_DEVELOPER);
-
-    foreach ($modules as $module) {
-
-        if (!debugging('', DEBUG_DEVELOPER)) {
-            echo BLOCK_CHAR . ' ';
-        }
-
-        if (get_string_manager()->string_exists('pluginname', 'mod_' . $module->name)) {
-            $modulename = get_string('pluginname', 'mod_' . $module->name);
-        } else {
-            $modulename = $module->name;
-        }
-
-        $moduleinstances = $DB->get_recordset($module->name);
-        foreach ($moduleinstances as $moduleinstance) {
-
-            /* $randomid = assign_random_id(); */
-            $pseudoid = assign_serial_pseudo_id(count($modules));
-            $moduleinstance->name = $modulename . ' ' . $pseudoid;
-            $DB->update_record($module->name, $moduleinstance, true);
-        }
-        $moduleinstances->close();
-    }
+		if (get_string_manager()->string_exists('pluginname', 'mod_' . $module->name)) {
+			$modulename = get_string('pluginname', 'mod_' . $module->name);
+		} else {
+			$modulename = $module->name;
+		}
+		
+		$moduleinstances = $DB->get_recordset($module->name);
+		$countmodules = $DB->count_records($module->name);
+		
+		debugging('there are ' . $countmodules . ' modules of type ' . $module->name . ' in the list', DEBUG_DEVELOPER);
+		foreach ($moduleinstances as $moduleinstance) {
+			/* $randomid = assign_random_id(); */
+			//$pseudoid = assign_serial_pseudo_id($countmodules);
+			$pseudoid = assign_serial_pseudo_id($countmodules);
+			debugging('changing activity ' . $moduleinstance->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
+			$moduleinstance->name = $modulename . ' ' . $pseudoid;
+			try {
+				$DB->update_record($module->name, $moduleinstance, true);
+				debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
+			} catch (Exception $ex) {
+				debugging('error attempting update_record ' . $ex, DEBUG_DEVELOPER);
+				debugging('Skipped activity ' . $moduleinstance->name . ' update', DEBUG_DEVELOPER);
+			} //try
+		} //foreach ($moduleinstances
+	} //foreach $modules
+	
+	$moduleinstances->close();
 }
 
-function pseudoonymise_categories() {
+function pseudonymise_categories() {
 
     global $DB;
 
@@ -128,10 +139,12 @@ function pseudoonymise_categories() {
     debugging('Pseudonymising categories', DEBUG_DEVELOPER);
 
     $allcategories = $DB->get_recordset('course_categories');
+		$countcategories = $DB->count_records('course_categories');
+debugging('there are ' . $countcategories . ' categories in the list', DEBUG_DEVELOPER);
     foreach ($allcategories as $category) {
 
     /* $randomid = assign_random_id(); */
-    $pseudoid = assign_pseudo_id(count($allcategories));
+    $pseudoid = assign_pseudo_id($countcategories);
         $category->name = $categoyprefix . ' ' . $pseudoid;
         assign_if_not_null($category, 'description', $descriptionprefix . $pseudoid);
         assign_if_not_null($category, 'idnumber', $pseudoid);
@@ -153,7 +166,9 @@ function pseudonymise_courses($site = false) {
 
     // Pseudonymise course data.
     $courses = $DB->get_recordset('course');
-    foreach ($courses as $course) {
+ 		$countcourses = $DB->count_records('course');
+debugging('there are ' . $countcourses . ' courses in the list', DEBUG_DEVELOPER);
+	foreach ($courses as $course) {
 
         if (!$site && $course->format == 'site') {
             $sitecourse = $course->id;
@@ -161,7 +176,7 @@ function pseudonymise_courses($site = false) {
         }
 
     /* $randomid = assign_random_id(); */
-     $pseudoid = assign_pseudo_id(count($courses));
+     $pseudoid = assign_pseudo_id($countcourses);
         $course->fullname = $courseprefix . ' ' . $pseudoid;
         $course->shortname = $courseprefix . ' ' . $pseudoid;
         assign_if_not_null($course, 'idnumber', $pseudoid);
@@ -174,12 +189,14 @@ function pseudonymise_courses($site = false) {
 
     // Pseudonymise sections - replace with numbers
     $sections = $DB->get_recordset('course_sections');
+ 		$countsections = $DB->count_records('course_sections');
+debugging('there are ' . $countsections . ' sections in the list', DEBUG_DEVELOPER);
     foreach ($sections as $section) {
 
         if (!$site && $section->course == $sitecourse) {
             continue;
         }
-            $pseudoid = assign_serial_pseudo_id(count($sections));
+            $pseudoid = assign_serial_pseudo_id($countsections);
 
         assign_if_not_null($section, 'name', $sectionprefix . ' ' . $pseudoid);
         assign_if_not_null($section, 'summary', $descriptionprefix . ' ' . $pseudoid);
@@ -195,15 +212,16 @@ function pseudonymise_files() {
     debugging('Pseudonymising files');
 
     $files = $DB->get_recordset('files');
+ 		$countfiles = $DB->count_records('files');
     foreach ($files as $file) {
 
         assign_if_not_null($file, 'author', 'user ' . $file->userid);
         assign_if_not_null($file, 'source', '');
         if ($file->filename !== '.') {
-            assign_if_not_null($file, 'filename', assign_serial_pseudo_id(count($files)));
+            assign_if_not_null($file, 'filename', assign_serial_pseudo_id($countfiles));
         }
         if ($file->filepath !== '/') {
-            assign_if_not_null($file, 'filepath', '/' . assign_serial_pseudo_id(count($files)) . '/');
+            assign_if_not_null($file, 'filepath', '/' . assign_serial_pseudo_id($countfiles) . '/');
         }
         $DB->update_record('files', $file);
     }
@@ -266,7 +284,7 @@ function pseudonymise_users($password = false, $admin = false) {
         }
     //debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
          $pseudoid = str_replace(" ","",strtolower(assign_serial_pseudo_id($countusers)));
-    debugging('new serialized string ' . $pseudoid, DEBUG_DEVELOPER);
+    //debugging('new serialized string ' . $pseudoid, DEBUG_DEVELOPER);
 
 	    /* assign_if_not_null($user, 'idnumber', $pseudoid); */
         assign_if_not_null($user, 'idnumber', $pseudogname . $pseudosname);
@@ -294,7 +312,7 @@ function pseudonymise_users($password = false, $admin = false) {
         try {
     //debugging('updating user ' . $user->id . ' with username ' . $user->username . ' and password ' . $user->$password, DEBUG_DEVELOPER);
             user_update_user($user, $user->username == 'admin' ? false : $password, false);
-    debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
+    //debugging('updated user ' . $user->id . ' named ' . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
         } catch (Exception $ex) {
             // No problem if there is any inconsistency just skip it.
             debugging('error attempting user_update_user ' . $ex, DEBUG_DEVELOPER);
@@ -706,39 +724,39 @@ function assign_pseudo_id($len) {
      $id = $subjectlist[rand(0,count($subjectlist)-1)];
      $maxcount = $maxcount * count($subjectlist);
      
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      //insert adjective
      $id = $modnounlist[rand(0,count($modnounlist)-1)] . " " . $id;
      		 $maxcount =  $maxcount * count($modnounlist);
      }
 
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      //insert adjective
      $id = $adjlist[rand(0,count($adjlist)-1)] . " " . $id;
      		 $maxcount =  $maxcount * count($adjlist);
      }
 
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      		 // prepend modifier
     //$id = $modlist[rand(0,count($modlist))];
      $id = $modlist[rand(0,count($modlist)-1)] . " " . $id;
     		 $maxcount =  $maxcount * count($modlist);
      }
 
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      // prepend level prefix
       $id = $prefixlist[rand(0,count($prefixlist)-1)] . " " . $id;
     		 $maxcount =  $maxcount * count($prefixlist);
      }
     
      
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      		 // combo courses
      		 $id = $id . " and " . $subjectlist[rand(0,count($subjectlist)-1)];
      		 $maxcount =  $maxcount * count($subjectlist);
      }
      
-     if (rand(0,1)>(($len - $maxcount)/$len)*.25) {
+     if (rand(0,1)<$len/$maxcount) {
      //posftix
        $id = $id  . " " . $postfixlist[rand(0,count($postfixlist)-1)];
      		 $maxcount =  $maxcount * count($postfixlist);
@@ -750,12 +768,12 @@ function assign_pseudo_id($len) {
      		 $maxcount =  $maxcount * count($majorlist);
      }
  */    
-     if (rand(0,1)>(($len - $maxcount)/$len)*100000) {
+     if (rand(0,1)<$len/$maxcount) {
     //level I II III IV
        $id = $id  . " " . $levellist[rand(0,count($levellist)-1)];
      		 $maxcount =  $maxcount * count($levellist);
      }
-     if (rand(0,1)>(($len - $maxcount)/$len)) {
+     if (rand(0,1)<$len/$maxcount) {
      // prepend gerund
       $id = $gerundlist[rand(0,count($gerundlist)-1)] . " " . $id;
     		 $maxcount =  $maxcount * count($gerundlist);
@@ -823,58 +841,54 @@ function assign_serial_pseudo_id($len) {
     $adverblist = explode(",", "Absolutely,Brilliantly,Charismatically,Deeply,Excellently,Fabulously,Graphically,Honestly,Intently,Justly,Keenly,Lively,Mostly,Nearly,Oddly,Perfectly,Quaintly,Really,Sharply,Truly,Utterly,Very,Wholly,Xtremely,Yearly,Zealously");
     $vegetablelist = explode(",", "Artichoke,Beets,Celery,Daikon,Eggplant,Fennel,Garlic,Horseradish,Ivy,Jícama,Kale,Lettuce,Mustard,Napa,Okra,Parsnip,Quandong,Radicchio,Shallots,Turnips,Ulluco,Vegetable,Watercress,Xocolatl,Yam,Ziti");
 
-	debugging('count serial pseudoids ' . $countserialpseudoids, DEBUG_DEVELOPER);
+	//debugging('count serial pseudoids ' . $countserialpseudoids, DEBUG_DEVELOPER);
 
      do {
     $maxcount = 1;
     
 $fruitcount = count($fruitlist);
-	     //print "debug count fruitlist $fruitcount\n";
      // pick fruit//
-	     //print "debug maxcount $maxcount\n";
-     $maxcount = $maxcount * count($fruitlist);
-	     //print "debug maxcount $maxcount\n";
-	    // print "debug maxcount $maxcount\n";
      $id = $fruitlist[fmod($countserialpseudoids,count($fruitlist))];
-	debugging('fmod of counter  ' . $countserialpseudoids . ' , mod by fruitcount ' . count($fruitlist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
+	//debugging('fmod of counter  ' . $countserialpseudoids . ' , mod by fruitcount ' . count($fruitlist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
+     $maxcount = $maxcount * count($fruitlist);
      
      if ($len > $maxcount) {
     // 2 words: animal with fruit 26*26 = 676
      $id =  $animallist[fmod(floor($countserialpseudoids/$maxcount), count($animallist))] . " with " . $id;
-	debugging('floor of fmod of counter/maxcount ' . floor($countserialpseudoids/$maxcount) . ' ,  mod animalcount' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
+	//debugging('floor of fmod of counter/maxcount ' . floor($countserialpseudoids/$maxcount) . ' ,  mod animalcount' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
      		 $maxcount =  $maxcount * count($animallist);
      }
 
      if ($len > $maxcount) {
     // 3 words: color animal with fruit 26*676 = 17,576
-    		 $maxcount =  $maxcount * count($colorlist);
      $id = $colorlist[fmod($countserialpseudoids/$maxcount, count($colorlist))] . " " . $id;
+    		 $maxcount =  $maxcount * count($colorlist);
      }
 
      if ($len > $maxcount) {
     // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
-    		 $maxcount =  $maxcount * count($adjlist);
       $id = $adjlist[fmod($countserialpseudoids/$maxcount, count($adjlist))] . " " . $id;
+    		 $maxcount =  $maxcount * count($adjlist);
      }
     
      
      if ($len > $maxcount) {
     // 5 words: verb, adjective, color, animal with fruit 26*456976 = 11,881,376
-     		 $maxcount =  $maxcount * count($verblist);
      		 $id = $verblist[fmod($countserialpseudoids/$maxcount, count($verblist))] . " " .  $id;
+     		 $maxcount =  $maxcount * count($verblist);
      }
      
      if ($len > $maxcount) {
     // 6 words: adverb, verb, adjective, color, animal with fruit 26*11881376 = 308,915,776
-     		 $maxcount =  $maxcount * count($adverblist);
         $id = $adverblist[fmod($countserialpseudoids/$maxcount, count($adverblist))]  . " " . $id;
+     		 $maxcount =  $maxcount * count($adverblist);
     }
           
      if ($len > $maxcount) {
     // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
-     		 $maxcount =  $maxcount * count($vegetablelist);
        $id = $id  . " and " . $vegetablelist[fmod($countserialpseudoids/$maxcount, count($vegetablelist))];
-     }
+      		 $maxcount =  $maxcount * count($vegetablelist);
+    }
 
           
  
