@@ -109,7 +109,7 @@ function pseudonymise_activities() {
 		$moduleinstances = $DB->get_recordset($module->name);
 		$countmodules = $DB->count_records($module->name);
 		
-		debugging('there are ' . $countmodules . ' modules of type ' . $module->name . ' in the list', DEBUG_DEVELOPER);
+		//debugging('there are ' . $countmodules . ' modules of type ' . $module->name . ' in the list', DEBUG_DEVELOPER);
 		foreach ($moduleinstances as $moduleinstance) {
 			/* $randomid = assign_random_id(); */
 			//$pseudoid = assign_serial_pseudo_id($countmodules);
@@ -857,19 +857,27 @@ $fruitcount = count($fruitlist);
      $id =  $animallist[fmod(floor($countserialpseudoids/$maxcount), count($animallist))] . " with " . $id;
 	//debugging('floor of fmod of counter/maxcount ' . floor($countserialpseudoids/$maxcount) . ' ,  mod animalcount' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
      		 $maxcount =  $maxcount * count($animallist);
+     } else {
+	     debugging('stopped at fruit with ' . $id, DEBUG_DEVELOPER);
      }
 
      if ($len > $maxcount) {
     // 3 words: color animal with fruit 26*676 = 17,576
      $id = $colorlist[fmod(floor($countserialpseudoids/$maxcount), count($colorlist))] . " " . $id;
     		 $maxcount =  $maxcount * count($colorlist);
+     } else {
+	     debugging('stopped at animals with ' . $id, DEBUG_DEVELOPER);
      }
+
 
      if ($len > $maxcount) {
     // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
       $id = $adjlist[fmod(floor($countserialpseudoids/$maxcount), count($adjlist))] . " " . $id;
     		 $maxcount =  $maxcount * count($adjlist);
+     } else {
+	     debugging('stopped at colors with ' . $id, DEBUG_DEVELOPER);
      }
+
     
      
      if ($len > $maxcount) {
