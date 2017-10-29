@@ -904,7 +904,9 @@ $fruitcount = count($fruitlist);
   if ($len > $maxcount) {
       $id = $id . " " . strval($len-$maxcount);
   } // if
+	debugging('testing ' . $id . ' for uniqueness', DEBUG_DEVELOPER);
      } while (array_search($id,  $usedserialpseudoids) !== false);
+	debugging('passed ' . $id . ' for uniqueness', DEBUG_DEVELOPER);
      $usedserialpseudoids[] = $id;
      $countserialpseudoids++;
      //print $countserialpseudoids;
