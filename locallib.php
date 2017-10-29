@@ -913,7 +913,7 @@ $fruitcount = count($fruitlist);
 
      $countserialpseudoids++;
      } while (array_search($id,  $usedserialpseudoids) !== false);
-	debugging('passed ' . $id . ' for uniqueness', DEBUG_DEVELOPER);
+	//debugging('passed ' . $id . ' for uniqueness', DEBUG_DEVELOPER);
      $usedserialpseudoids[] = $id;
      //print $countserialpseudoids;
     return $id;
