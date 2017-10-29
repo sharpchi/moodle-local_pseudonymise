@@ -113,7 +113,7 @@ function pseudonymise_activities() {
 		foreach ($moduleinstances as $moduleinstance) {
 			/* $randomid = assign_random_id(); */
 			//$pseudoid = assign_serial_pseudo_id($countmodules);
-			$pseudoid = assign_serial_pseudo_id($countmodules);
+			$pseudoid = assign_serial_pseudo_id($countmodules*10);
 			//debugging('changing activity ' . $moduleinstance->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
 			$moduleinstance->name = $modulename . ' ' . $pseudoid;
 			try {
