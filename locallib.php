@@ -118,7 +118,7 @@ function pseudonymise_activities() {
 			$moduleinstance->name = $modulename . ' ' . $pseudoid;
 			try {
 				$DB->update_record($module->name, $moduleinstance, true);
-				//debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
+				debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
 			} catch (Exception $ex) {
 				debugging('error attempting update_record ' . $ex, DEBUG_DEVELOPER);
 				debugging('Skipped activity ' . $moduleinstance->name . ' update', DEBUG_DEVELOPER);
