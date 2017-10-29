@@ -114,11 +114,11 @@ function pseudonymise_activities() {
 			/* $randomid = assign_random_id(); */
 			//$pseudoid = assign_serial_pseudo_id($countmodules);
 			$pseudoid = assign_serial_pseudo_id($countmodules);
-			debugging('changing activity ' . $moduleinstance->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
+			//debugging('changing activity ' . $moduleinstance->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
 			$moduleinstance->name = $modulename . ' ' . $pseudoid;
 			try {
 				$DB->update_record($module->name, $moduleinstance, true);
-				debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
+				//debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
 			} catch (Exception $ex) {
 				debugging('error attempting update_record ' . $ex, DEBUG_DEVELOPER);
 				debugging('Skipped activity ' . $moduleinstance->name . ' update', DEBUG_DEVELOPER);
@@ -861,32 +861,32 @@ $fruitcount = count($fruitlist);
 
      if ($len > $maxcount) {
     // 3 words: color animal with fruit 26*676 = 17,576
-     $id = $colorlist[fmod($countserialpseudoids/$maxcount, count($colorlist))] . " " . $id;
+     $id = $colorlist[fmod(floor($countserialpseudoids/$maxcount), count($colorlist))] . " " . $id;
     		 $maxcount =  $maxcount * count($colorlist);
      }
 
      if ($len > $maxcount) {
     // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
-      $id = $adjlist[fmod($countserialpseudoids/$maxcount, count($adjlist))] . " " . $id;
+      $id = $adjlist[fmod(floor($countserialpseudoids/$maxcount), count($adjlist))] . " " . $id;
     		 $maxcount =  $maxcount * count($adjlist);
      }
     
      
      if ($len > $maxcount) {
     // 5 words: verb, adjective, color, animal with fruit 26*456976 = 11,881,376
-     		 $id = $verblist[fmod($countserialpseudoids/$maxcount, count($verblist))] . " " .  $id;
+     		 $id = $verblist[fmod(floor($countserialpseudoids/$maxcount), count($verblist))] . " " .  $id;
      		 $maxcount =  $maxcount * count($verblist);
      }
      
      if ($len > $maxcount) {
     // 6 words: adverb, verb, adjective, color, animal with fruit 26*11881376 = 308,915,776
-        $id = $adverblist[fmod($countserialpseudoids/$maxcount, count($adverblist))]  . " " . $id;
+        $id = $adverblist[fmod(floor($countserialpseudoids/$maxcount), count($adverblist))]  . " " . $id;
      		 $maxcount =  $maxcount * count($adverblist);
     }
           
      if ($len > $maxcount) {
     // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
-       $id = $id  . " and " . $vegetablelist[fmod($countserialpseudoids/$maxcount, count($vegetablelist))];
+       $id = $id  . " and " . $vegetablelist[fmod(floor($countserialpseudoids/$maxcount), count($vegetablelist))];
       		 $maxcount =  $maxcount * count($vegetablelist);
     }
 
