@@ -109,16 +109,16 @@ function pseudonymise_activities() {
 		$moduleinstances = $DB->get_recordset($module->name);
 		$countmodules = $DB->count_records($module->name);
 		
-		debugging('there are ' . $countmodules . ' modules of type ' . $module->name . ' in the list', DEBUG_DEVELOPER);
+		//debugging('there are ' . $countmodules . ' modules of type ' . $module->name . ' in the list', DEBUG_DEVELOPER);
 		foreach ($moduleinstances as $moduleinstance) {
 			/* $randomid = assign_random_id(); */
 			//$pseudoid = assign_serial_pseudo_id($countmodules);
 			$pseudoid = assign_serial_pseudo_id($countmodules);
-			debugging('changing activity ' . $moduleinstance->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
+			//debugging('changing activity ' . $moduleinstance->name . ' name to ' . $pseudoid, DEBUG_DEVELOPER);
 			$moduleinstance->name = $modulename . ' ' . $pseudoid;
 			try {
 				$DB->update_record($module->name, $moduleinstance, true);
-				debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
+				//debugging('changed activity ' . $module->name . ' name to ' . $moduleinstance->name, DEBUG_DEVELOPER);
 			} catch (Exception $ex) {
 				debugging('error attempting update_record ' . $ex, DEBUG_DEVELOPER);
 				debugging('Skipped activity ' . $moduleinstance->name . ' update', DEBUG_DEVELOPER);
@@ -857,36 +857,44 @@ $fruitcount = count($fruitlist);
      $id =  $animallist[fmod(floor($countserialpseudoids/$maxcount), count($animallist))] . " with " . $id;
 	//debugging('floor of fmod of counter/maxcount ' . floor($countserialpseudoids/$maxcount) . ' ,  mod animalcount' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
      		 $maxcount =  $maxcount * count($animallist);
+     } else {
+	     //debugging('stopped at fruit with ' . $id, DEBUG_DEVELOPER);
      }
 
      if ($len > $maxcount) {
     // 3 words: color animal with fruit 26*676 = 17,576
-     $id = $colorlist[fmod($countserialpseudoids/$maxcount, count($colorlist))] . " " . $id;
+     $id = $colorlist[fmod(floor($countserialpseudoids/$maxcount), count($colorlist))] . " " . $id;
     		 $maxcount =  $maxcount * count($colorlist);
+     } else {
+	     //debugging('stopped at animals with ' . $id, DEBUG_DEVELOPER);
      }
+
 
      if ($len > $maxcount) {
     // 4 words: adjective, color, animal with fruit 26*17576 = 456,976
-      $id = $adjlist[fmod($countserialpseudoids/$maxcount, count($adjlist))] . " " . $id;
+      $id = $adjlist[fmod(floor($countserialpseudoids/$maxcount), count($adjlist))] . " " . $id;
     		 $maxcount =  $maxcount * count($adjlist);
+     } else {
+	     //debugging('stopped at colors with ' . $id, DEBUG_DEVELOPER);
      }
+
     
      
      if ($len > $maxcount) {
     // 5 words: verb, adjective, color, animal with fruit 26*456976 = 11,881,376
-     		 $id = $verblist[fmod($countserialpseudoids/$maxcount, count($verblist))] . " " .  $id;
+     		 $id = $verblist[fmod(floor($countserialpseudoids/$maxcount), count($verblist))] . " " .  $id;
      		 $maxcount =  $maxcount * count($verblist);
      }
      
      if ($len > $maxcount) {
     // 6 words: adverb, verb, adjective, color, animal with fruit 26*11881376 = 308,915,776
-        $id = $adverblist[fmod($countserialpseudoids/$maxcount, count($adverblist))]  . " " . $id;
+        $id = $adverblist[fmod(floor($countserialpseudoids/$maxcount), count($adverblist))]  . " " . $id;
      		 $maxcount =  $maxcount * count($adverblist);
     }
           
      if ($len > $maxcount) {
     // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
-       $id = $id  . " and " . $vegetablelist[fmod($countserialpseudoids/$maxcount, count($vegetablelist))];
+       $id = $id  . " and " . $vegetablelist[fmod(floor($countserialpseudoids/$maxcount), count($vegetablelist))];
       		 $maxcount =  $maxcount * count($vegetablelist);
     }
 
@@ -896,9 +904,17 @@ $fruitcount = count($fruitlist);
   if ($len > $maxcount) {
       $id = $id . " " . strval($len-$maxcount);
   } // if
-     } while (array_search($id,  $usedserialpseudoids) !== false);
-     $usedserialpseudoids[] = $id;
+	     //debugging('testing ' . $id . ' for uniqueness', DEBUG_DEVELOPER);
+	     //debugging('count serial pseudoids ' . $countserialpseudoids, DEBUG_DEVELOPER);
+	     //debugging('maxcount ' . $maxcount, DEBUG_DEVELOPER);
+	     //debugging('len ' . $len, DEBUG_DEVELOPER);
+
+
+
      $countserialpseudoids++;
+     } while (array_search($id,  $usedserialpseudoids) !== false);
+	//debugging('passed ' . $id . ' for uniqueness', DEBUG_DEVELOPER);
+     $usedserialpseudoids[] = $id;
      //print $countserialpseudoids;
     return $id;
 }
