@@ -841,7 +841,7 @@ function assign_serial_pseudo_id($len) {
     $adverblist = explode(",", "Absolutely,Brilliantly,Charismatically,Deeply,Excellently,Fabulously,Graphically,Honestly,Intently,Justly,Keenly,Lively,Mostly,Nearly,Oddly,Perfectly,Quaintly,Really,Sharply,Truly,Utterly,Very,Wholly,Xtremely,Yearly,Zealously");
     $vegetablelist = explode(",", "Artichoke,Beets,Celery,Daikon,Eggplant,Fennel,Garlic,Horseradish,Ivy,Jícama,Kale,Lettuce,Mustard,Napa,Okra,Parsnip,Quandong,Radicchio,Shallots,Turnips,Ulluco,Vegetable,Watercress,Xocolatl,Yam,Ziti");
 
-	//debugging('count serial pseudoids ' . $countserialpseudoids, DEBUG_DEVELOPER);
+	debugging('count serial pseudoids ' . $countserialpseudoids, DEBUG_DEVELOPER);
 
      do {
     $maxcount = 1;
