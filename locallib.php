@@ -858,7 +858,7 @@ $fruitcount = count($fruitlist);
 	//debugging('floor of fmod of counter/maxcount ' . floor($countserialpseudoids/$maxcount) . ' ,  mod animalcount' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
      		 $maxcount =  $maxcount * count($animallist);
      } else {
-	     debugging('stopped at fruit with ' . $id, DEBUG_DEVELOPER);
+	     //debugging('stopped at fruit with ' . $id, DEBUG_DEVELOPER);
      }
 
      if ($len > $maxcount) {
@@ -866,7 +866,7 @@ $fruitcount = count($fruitlist);
      $id = $colorlist[fmod(floor($countserialpseudoids/$maxcount), count($colorlist))] . " " . $id;
     		 $maxcount =  $maxcount * count($colorlist);
      } else {
-	     debugging('stopped at animals with ' . $id, DEBUG_DEVELOPER);
+	     //debugging('stopped at animals with ' . $id, DEBUG_DEVELOPER);
      }
 
 
@@ -875,7 +875,7 @@ $fruitcount = count($fruitlist);
       $id = $adjlist[fmod(floor($countserialpseudoids/$maxcount), count($adjlist))] . " " . $id;
     		 $maxcount =  $maxcount * count($adjlist);
      } else {
-	     debugging('stopped at colors with ' . $id, DEBUG_DEVELOPER);
+	     //debugging('stopped at colors with ' . $id, DEBUG_DEVELOPER);
      }
 
     
