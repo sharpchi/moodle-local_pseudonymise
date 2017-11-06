@@ -833,13 +833,13 @@ function assign_serial_pseudo_id($len) {
     static $usedserialpseudoids = array();
     static $countserialpseudoids = 0;
     
-    $animallist = explode(",", "Armadillos,Buffaloes,Cats,Dogs,Elephants,Foxes,Giraffes,Horses,Iguanas,Jaguars,Kangaroos,Leopards,Monkeys,Nightingales,Ostriches,Penguins,Quails,Rhinoceros,Sharks,Turtles,Unicorns,Vultures,Whales,Xeruses,Yaks,Zebras");
-     $fruitlist = explode(",", "Apples,Bananas,Cherries,Dates,Elderberries,Figs,Grapes,Honeydews,Ingas,Jackfruit,Kumquats,Lemons,Mangoes,Nectarines,Oranges,Papayas,Quinces,Raspberries,Strawberries,Tangerines,Ugni,Vanilla,Watermelons,Ximenia,Yangmei,Zucchini");
-    $colorlist = explode(",", "Amber,Blue,Celadon,Damask,Ecru,Fuchsia,Grey,Heliotrope,Indigo,Jade,Khaki,Lavender,Maroon,Navy,Ochre,Platinum,Quartz,Ruby,Saffron,Teal,Ultramarine,Violet,White,Xanthic,Yellow,Zaffre");
-    $adjlist = explode(",", "Able,Brainy,Cheerful,Diligent,Eccentric,Fiery,Gallant,Humble,Idyllic,Jovial,Kinetic,Lithe,Mellow,Nimble,Orderly,Poetic,Quirky,Radical,Shiny,Thrifty,Ultimate,Vibrant,Winsome,Xeric,Yogic,Zesty");
-    $verblist = explode(",", "Activating,Blending,Creating,Developing,Educating,Forming,Grouping,Honoring,Instantiating,Joining,Kindling,Lassoing,Moderating,Naming,Ordering,Pacifying,Quieting,Renewing,Sampling,Teaching,Understanding,Valuing,Winning,Xenografting,Yoking,Zeroing");
-    $adverblist = explode(",", "Absolutely,Brilliantly,Charismatically,Deeply,Excellently,Fabulously,Graphically,Honestly,Intently,Justly,Keenly,Lively,Mostly,Nearly,Oddly,Perfectly,Quaintly,Really,Sharply,Truly,Utterly,Very,Wholly,Xtremely,Yearly,Zealously");
-    $vegetablelist = explode(",", "Artichoke,Beets,Celery,Daikon,Eggplant,Fennel,Garlic,Horseradish,Ivy,Jícama,Kale,Lettuce,Mustard,Napa,Okra,Parsnip,Quandong,Radicchio,Shallots,Turnips,Ulluco,Vegetable,Watercress,Xocolatl,Yam,Ziti");
+    $animallist = explode(",", "Analytics,Biology,Ceramics,Data,Ecology,Forensics,Genetics,Health,Investment,Journalism,Kinesiology,Lithography,Masonry,Nanoscience,Organization,Philosophy,Qualifications,Relativity,Syntax,Translation,Urbanization,Vertebrates,Wealth,Xenobiology,Youth,Zebras");
+     $fruitlist = explode(",", "Astronomy,Behavior,Citizenship,Decisions,Engineering,Folklore,Gastronomy,Hospitality,Ideas,Jazz,Kant,Leisure,Mathematics,Neuroscience,Ontology,Parasitology,Queries,Reasoning,Semantics,Traditions,Utopia,Value,Worldviews,Xenophilia,Yersinia Pestis,Zygotes");
+    $colorlist = explode(",", "Animal,Beverage,Career,Dialogue,Electron,Fossil,Greenhouse,Human,Identity,Justice,Knowledge,Landscape,Matrix,Nature,Optics,Place,Query,Rennaisance,Service,Trial,University,Video,Web,Xeriscape,Yeast,Zircon");
+    $adjlist = explode(",", "Abstract,Behavioral,Cellular,Discrete,Economic,Finite,Global,Historical,Instrumental,Juvenile,Kinetic,Linear,Mechanical,Networked,Object-Oriented,Primary,Quantum,Renewable,Secondary,Thermal,Uniform,Virtual,Winter,Xerothermic,Yogic,Zoological");
+    $verblist = explode(",", "Activating,Blending,Categorizing,Developing,Evaluating,Formulating,Generating,Hypothesizing,Imagining,Joining,Knowing,Learning,Moderating,Naming,Ordering,Predicting,Quantifying,Researching,Sampling,Teaching,Understanding,Valuing,Writing,eXamining,Yoking,Zeroing");
+    $adverblist = explode(",", "Absolutely,Brilliantly,Creatively,Deeply,Empirically,Formally,Graphically,Holistically,Inferentially,Justly,Keenly,Locally,Medically,Non-Linearly,Organically,Physically,Qualitatively,Realistically,Statistically,Theoretically,Uniquely,Verbally,Wholly,Xerographically,Yearly,Zealously");
+    $vegetablelist = explode(",", "Application,Basics,Challenges,Designs,Experiments,Factors,Generalizations,Hierarchy,Insights,Judgments,Keynotes,Literature,Materials,Norms,Opinions,Participation,Questions,Resources,Solutions,Topics,Uses,Vignettes,Ways,Xystus,Yields,");
 
 	//debugging('count serial pseudoids ' . $countserialpseudoids, DEBUG_DEVELOPER);
 
@@ -854,7 +854,7 @@ $fruitcount = count($fruitlist);
      
      if ($len > $maxcount) {
     // 2 words: animal with fruit 26*26 = 676
-     $id =  $animallist[fmod(floor($countserialpseudoids/$maxcount), count($animallist))] . " with " . $id;
+     $id =  $animallist[fmod(floor($countserialpseudoids/$maxcount), count($animallist))] . " and " . $id;
 	//debugging('floor of fmod of counter/maxcount ' . floor($countserialpseudoids/$maxcount) . ' ,  mod animalcount' . count($animallist) . ' = ' . fmod($countserialpseudoids,count($fruitlist)), DEBUG_DEVELOPER);
      		 $maxcount =  $maxcount * count($animallist);
      } else {
@@ -894,7 +894,7 @@ $fruitcount = count($fruitlist);
           
      if ($len > $maxcount) {
     // 7 words: adverb, verb, adjective, color, animal with fruit and vegetable 26*308915776 = 8,031,810,176
-       $id = $id  . " and " . $vegetablelist[fmod(floor($countserialpseudoids/$maxcount), count($vegetablelist))];
+       $id = $id  . ": " . $vegetablelist[fmod(floor($countserialpseudoids/$maxcount), count($vegetablelist))];
       		 $maxcount =  $maxcount * count($vegetablelist);
     }
 
