@@ -41,7 +41,9 @@ list($options, $unrecognized) = cli_get_params(
         'password' => false,
         'admin' => false,
         'others' => false,
-        'help' => false
+        'help' => false,
+        'noncore' => false,
+        'sensitive' => false
     ), array(
         'h' => 'help'
     )
@@ -66,6 +68,8 @@ Options:
 --password          Reset user passwords
 --admin             Pseudonymise default administrator (except username and password)
 --others            Pseudonymise all other potentially sensitive contents
+--noncore           Delete noncore plugin tables and data
+--sensitive         Delete sensitive data from plugins
 -h, --help          Print out this help
 
 Example:
@@ -128,6 +132,16 @@ if ($options['users']) {
 if ($options['others']) {
     echo $OUTPUT->heading(get_string('others', 'local_pseudonymise'), 3);
     pseudonymise_others($options['activities'], $options['password']);
+}
+
+if ($options['noncore']) {
+    echo $OUTPUT->heading(get_string('noncore', 'local_pseudonymise'), 3);
+    pseudonymise_noncore();
+}
+
+if ($options['sensitive']) {
+    echo $OUTPUT->heading(get_string('sensitive', 'local_pseudonymise'), 3);
+    pseudonymise_sensitive();
 }
 
 exit(0);

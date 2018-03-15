@@ -280,7 +280,7 @@ function pseudonymise_users($password = false, $admin = false) {
         /* this function is specific to assigning a plausible surname */
         $pseudosname = assign_pseudo_sname($pseudogname);
         if ($user->username != 'admin') {
-            $user->username = $val = iconv('UTF-8', 'ASCII//TRANSLIT',
+            $user->username = iconv('UTF-8', 'ASCII//TRANSLIT',
                 preg_replace('/\W/', '', strtolower($userstring . $pseudogname . $pseudosname)));
         }
     //debugging('new name '  . $pseudogname . ' ' . $pseudosname, DEBUG_DEVELOPER);
@@ -348,6 +348,103 @@ function pseudonymise_users($password = false, $admin = false) {
 function pseudonymise_others($pseudonymiseactivities, $pseudonymisepassword) {
     global $DB;
 
+    debugging('Deleting other stuff', DEBUG_DEVELOPER);
+
+    // Other records.
+    $DB->delete_records('user_preferences', array('name' => 'login_lockout_secret'));
+    $DB->delete_records('user_preferences', array('name' => 'flickr_'));
+    $DB->delete_records('user_preferences', array('name' => 'flickr__nsid'));
+    $DB->delete_records('user_preferences', array('name' => 'dropbox__request_secret'));
+
+
+    $truncatetables = get_tables_to_truncate();
+    foreach ($truncatetables as $ttable) {
+        try {
+            $DB->delete_records($ttable);
+        } catch (dml_exception $e) {
+            // Ignore.
+        }
+    }
+
+    debugging('Getting rid of all ips', DEBUG_DEVELOPER);
+
+    // Iterate through all tables and get rid of all ips.
+    $tables = $DB->get_tables(false);
+    $params = array('ip' => '0.0.0.0');
+    $ipcolumns = ['ip', 'ipaddress', 'ip_address', 'iprestriction', 'lastip', 'last_ip', 'ip_restriction'];
+    foreach ($tables as $tablename) {
+        $columns = $DB->get_columns($tablename, false);
+        foreach ($columns as $columnname => $column) {
+            if (in_array($columnname, $ipcolumns)) {
+                try {
+                    $updateips = "UPDATE {$tablename} SET $columnname = :ip";
+                    $DB->execute($updateips, $params);
+                } catch (dml_exception $ex) {
+                    // Ignore.
+                }
+            }
+        }
+    }
+
+
+    // We don't want to pseudonymise these database table columns because the system would not work as expected
+    // without them or they contain numeric or they contain data that do not need to be pseudonymised.
+    $excludedcolumns = get_excluded_text_columns();
+
+    // List of varchar fields to pseudonymise, already excluded varchar fields that are required by the system
+    // to work properly.
+    $varchars = get_varchar_fields_to_update();
+
+    // List of activities, we skip activity names pseudonymisation.
+    $activitynamefields = get_activity_name_fields();
+
+    // Iterate through all tables and set random values to text and varchar fields.
+
+    foreach ($tables as $tablename) {
+
+        if (!debugging('', DEBUG_DEVELOPER)) {
+            echo BLOCK_CHAR . ' ';
+        }
+
+        $toupdate = array();
+        $columns = $DB->get_columns($tablename, false);
+        foreach ($columns as $columnname => $column) {
+
+            // Some text fields can not be cleared or the site would not make sense.
+            if (!empty($excludedcolumns[$tablename]) && in_array($columnname, $excludedcolumns[$tablename])) {
+                continue;
+            }
+
+            // Text fields, all of them but the excluded ones.
+            if (($DB->get_dbfamily() === 'postgres' && $column->type === 'text') ||
+                ($DB->get_dbfamily() === 'mysql' && $column->type === 'longtext')) {
+                $toupdate[$columnname] = $columnname;
+            }
+
+            // All listed varchars.
+            if (!empty($varchars[$tablename]) && !empty($varchars[$tablename][$columnname])) {
+
+                // Skip activity names and user password if required.
+                if (($pseudonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) &&
+                        ($pseudonymisepassword || $tablename !== 'user' || $columnname !== 'password')) {
+                    $toupdate[$columnname] = $columnname;
+                }
+            }
+        }
+
+        // Update all table records if there is any text column that should be cleaned.
+        if (!empty($toupdate)) {
+            debugging('Pseudonymising ' . $tablename . ' records', DEBUG_DEVELOPER);
+            pseudonymise_table_records($tablename, $toupdate);
+        }
+    }
+
+    purge_all_caches();
+}
+
+function pseudonymise_noncore() {
+    global $DB;
+
     // List all non-standard plugins in the system.
     $noncoreplugins = array();
     foreach (\core_component::get_plugin_types() as $plugintype => $plugintypedir) {
@@ -405,8 +502,12 @@ function pseudonymise_others($pseudonymiseactivities, $pseudonymisepassword) {
             $DB->delete_records('config_plugins', array('plugin' => $legacyname));
         }
     }
+}
 
-    debugging('Deleting config_plugins data', DEBUG_DEVELOPER);
+function pseudonymise_sensitive() {
+    global $DB;
+
+    debugging('Deleting sensitive data', DEBUG_DEVELOPER);
 
     // Delete core plugins sensitive mdl_config_plugins records.
     $sensitiveplugins = array('auth_cas', 'auth_db', 'auth_fc', 'auth_imap', 'auth_ldap', 'auth_nntp', 'auth_pam', 'auth_pop3',
@@ -454,183 +555,6 @@ function pseudonymise_others($pseudonymiseactivities, $pseudonymisepassword) {
             $DB->update_record('config', $record);
         }
     }
-
-    debugging('Deleting other stuff', DEBUG_DEVELOPER);
-
-    // Other records.
-    $DB->delete_records('user_preferences', array('name' => 'login_lockout_secret'));
-    $DB->delete_records('user_preferences', array('name' => 'flickr_'));
-    $DB->delete_records('user_preferences', array('name' => 'flickr__nsid'));
-    $DB->delete_records('user_preferences', array('name' => 'dropbox__request_secret'));
-
-    try {
-        $DB->delete_records('sessions');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('log');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('config_log');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('portfolio_log');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('mnet_log');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('upgrade_log');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('scorm_aicc_session');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('mnet_session');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('user_password_history');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('user_password_resets');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-    try {
-        $DB->delete_records('user_private_key');
-    } catch (dml_exception $e) {
-        // Ignore.
-    }
-
-    debugging('Getting rid of all ips', DEBUG_DEVELOPER);
-
-    // Get rid of all ips.
-    $params = array('ip' => '0.0.0.0');
-    try {
-        $updateips = "UPDATE {user_private_key} SET iprestriction = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // Ignore.
-    }
-    try {
-        $updateips = "UPDATE {user} SET lastip = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // Ignore.
-    }
-    try {
-        $updateips = "UPDATE {registry} SET ipaddress = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // Ignore.
-    }
-    try {
-        $updateips = "UPDATE {register_downloads} SET ip = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // Ignore.
-    }
-    try {
-        $updateips = "UPDATE {mnet_host} SET ip_address = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // Ignore.
-    }
-    try {
-        $updateips = "UPDATE {external_tokens} SET iprestriction = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // Ignore.
-    }
-    try {
-        $updateips = "UPDATE {external_services_users} SET iprestriction = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // Ignore.
-    }
-    try {
-        $updateips = "UPDATE {chat_users} SET ip = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // Ignore.
-    }
-    try {
-        $updateips = "UPDATE {logstore_standard_log} SET ip = :ip";
-        $DB->execute($updateips, $params);
-    } catch (dml_exception $ex) {
-        // np, ignoring logstore_standard if not installed (although not worth the dataset if uninstalled....).
-    }
-
-    // We don't want to pseudonymise these database table columns because the system would not work as expected
-    // without them or they contain numeric or they contain data that do not need to be pseudonymised.
-    $excludedcolumns = get_excluded_text_columns();
-
-    // List of varchar fields to pseudonymise, already excluded varchar fields that are required by the system
-    // to work properly.
-    $varchars = get_varchar_fields_to_update();
-
-    // List of activities, we skip activity names pseudonymisation.
-    $activitynamefields = get_activity_name_fields();
-
-    // Iterate through all system tables and set random values to text and varchar fields.
-    $tables = $DB->get_tables(false);
-    foreach ($tables as $tablename) {
-
-        if (!debugging('', DEBUG_DEVELOPER)) {
-            echo BLOCK_CHAR . ' ';
-        }
-
-        $toupdate = array();
-        $columns = $DB->get_columns($tablename, false);
-        foreach ($columns as $columnname => $column) {
-
-            // Some text fields can not be cleared or the site would not make sense.
-            if (!empty($excludedcolumns[$tablename]) && in_array($columnname, $excludedcolumns[$tablename])) {
-                continue;
-            }
-
-            // Text fields, all of them but the excluded ones.
-            if (($DB->get_dbfamily() === 'postgres' && $column->type === 'text') ||
-                ($DB->get_dbfamily() === 'mysql' && $column->type === 'longtext')) {
-                $toupdate[$columnname] = $columnname;
-            }
-
-            // All listed varchars.
-            if (!empty($varchars[$tablename]) && !empty($varchars[$tablename][$columnname])) {
-
-                // Skip activity names and user password if required.
-                if (($pseudonymiseactivities || empty($activitynamefields[$tablename]) || empty($activitynamefields[$tablename][$columnname])) &&
-                        ($pseudonymisepassword || $tablename !== 'user' || $columnname !== 'password')) {
-                    $toupdate[$columnname] = $columnname;
-                }
-            }
-        }
-
-        // Update all table records if there is any text column that should be cleaned.
-        if (!empty($toupdate)) {
-            debugging('Pseudonymising ' . $tablename . ' records', DEBUG_DEVELOPER);
-            pseudonymise_table_records($tablename, $toupdate);
-        }
-    }
-
-    purge_all_caches();
 }
 
 function pseudonymise_table_records($tablename, $columns) {
@@ -1077,30 +1001,11 @@ function get_varchar_fields_to_update() {
 }
 
 function get_activity_name_fields() {
-    $activities = array(
-        'assign' => array('name'),
-        'assignment' => array('name'),
-        'book' => array('name'),
-        'chat' => array('name'),
-        'choice' => array('name'),
-        'data' => array('name'),
-        'feedback' => array('name'),
-        'folder' => array('name'),
-        'forum' => array('name'),
-        'glossary' => array('name'),
-        'imscp' => array('name'),
-        'label' => array('name'),
-        'lesson' => array('name'),
-        'lti' => array('name'),
-        'page' => array('name'),
-        'quiz' => array('name'),
-        'resource' => array('name'),
-        'scorm' => array('name'),
-        'survey' => array('name'),
-        'url' => array('name'),
-        'wiki' => array('name'),
-        'workshop' => array('name'),
-    );
+    $activitytables = get_config('local_pseudonymise', 'namefields');
+    $activities = [];
+    foreach ($activitytables as $activity) {
+        $activities[$activity] = ['name']
+    }
 
     foreach ($activities as $tablename => $columns) {
         $activities[$tablename] = array_combine($columns, $columns);
@@ -1108,4 +1013,10 @@ function get_activity_name_fields() {
 
     return $activities;
 
+}
+
+function get_tables_to_truncate() {
+    $tables = get_config('local_pseudonymise', 'truncatetables');
+    $tables = explode(',', $tables);
+    return $tables;
 }
